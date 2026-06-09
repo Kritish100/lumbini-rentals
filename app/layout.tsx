@@ -8,24 +8,25 @@ const poppins = Poppins({ subsets: ['latin'], weight: ['600', '700', '800'], var
 
 export const metadata: Metadata = {
   title: 'Lumbini Rentals - Verified Spaces',
-  description: 'Discover verified rental properties from Bhairahawa to Butwal. 100% inspected, direct landlords, no broker fees.',
-  generator: 'v0.app',
+  description: 'Discover verified rental properties from Bhairahawa to Butwal. 100% inspected, direct landlords',
+  applicationName: 'Lumbini Rentals',
+  authors: [{ name: 'Kritish Bhattarai', url: 'https://kritishbhattarai.com.np' }],
   icons: {
     icon: [
       {
-        url: '/icon-light-32x32.png',
+        url: '/lumbini-rentals-48x48.png',
         media: '(prefers-color-scheme: light)',
       },
       {
-        url: '/icon-dark-32x32.png',
+        url: '/lumbini-rentals-48x48.png',
         media: '(prefers-color-scheme: dark)',
       },
       {
-        url: '/icon.svg',
+        url: '/lumbini-rentals-48x48.png',
         type: 'image/svg+xml',
       },
     ],
-    apple: '/apple-icon.png',
+    apple: '/lumbini-rentals-48x48.png',
   },
 }
 

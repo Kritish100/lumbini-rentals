@@ -11,13 +11,14 @@ import OurSocials from '@/components/OurSocials'
 import ClientTestimonials from '@/components/ClientTestimonials'
 import Footer from '@/components/Footer'
 
-// Enhanced Sample property data with all fields
+// Enhanced Sample property data with operational discounts and availability states
 const SAMPLE_PROPERTIES: Property[] = [
   {
     id: '1',
     uniqueId: 'PR-101',
     isFeatured: true,
     price: 8500,
+    discountPrice: 6500, // Triggers "1st Month Offer" badge
     type: '2BHK Flat',
     category: 'Residential' as const,
     location: 'Yogikuti, Butwal',
@@ -29,7 +30,6 @@ const SAMPLE_PROPERTIES: Property[] = [
       'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=450&fit=crop',
       'https://images.unsplash.com/photo-1516455207990-7a41e440d268?w=600&h=450&fit=crop',
     ],
-    videoUrl: 'https://media.w3.org/2016/12/sample.mp4',
     beds: 2,
     baths: 1,
     hasParking: true,
@@ -41,6 +41,7 @@ const SAMPLE_PROPERTIES: Property[] = [
     description: 'Spacious 2BHK flat with modern amenities, located in a prime area with easy access to markets and transportation. Recently renovated with premium finishings.',
     hasVideo: true,
     comments: 12,
+    availabilityStatus: 'Available Now', // Triggers solid Mint Green badge
   },
   {
     id: '2',
@@ -68,12 +69,14 @@ const SAMPLE_PROPERTIES: Property[] = [
     description: 'Cozy 1BHK flat perfect for couples or single professionals. Well-lit rooms with modern finishings and good cross-ventilation.',
     hasVideo: false,
     comments: 8,
+    availabilityStatus: 'Moving Out Soon', // Triggers "Moving Soon" amber/orange badge
   },
   {
     id: '3',
     uniqueId: 'PR-103',
     isFeatured: false,
     price: 3500,
+    discountPrice: 2500, // Triggers "1st Month Offer" badge
     type: 'Single Room',
     category: 'Residential' as const,
     location: 'Yogikuti, Butwal',
@@ -95,6 +98,7 @@ const SAMPLE_PROPERTIES: Property[] = [
     description: 'Affordable single room with attached bathroom and a small balcony. Ideal for students or job seekers. Building has good security.',
     hasVideo: true,
     comments: 6,
+    availabilityStatus: 'Available Now',
   },
   {
     id: '4',
@@ -112,7 +116,6 @@ const SAMPLE_PROPERTIES: Property[] = [
       'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=450&fit=crop',
       'https://images.unsplash.com/photo-1516455207990-7a41e440d268?w=600&h=450&fit=crop',
     ],
-    videoUrl: 'https://media.w3.org/2016/12/sample.mp4',
     beds: 2,
     baths: 2,
     hasParking: true,
@@ -124,12 +127,14 @@ const SAMPLE_PROPERTIES: Property[] = [
     description: 'Luxury 2BHK flat with premium finishings and excellent ventilation. Close to all amenities including restaurants, shopping mall, and public transport.',
     hasVideo: true,
     comments: 18,
+    availabilityStatus: 'Rented', // Triggers dark slate overlay state
   },
   {
     id: '5',
     uniqueId: 'PR-105',
     isFeatured: false,
     price: 7000,
+    discountPrice: 5000, // Triggers "1st Month Offer" badge
     type: 'Office Spaces',
     category: 'Commercial' as const,
     location: 'Market Square, Bhairahawa',
@@ -150,6 +155,7 @@ const SAMPLE_PROPERTIES: Property[] = [
     description: 'Prime commercial office space in busy market area. Perfect for retail or small business setup. High foot traffic area with excellent visibility.',
     hasVideo: false,
     comments: 5,
+    availabilityStatus: 'Available Now',
   },
   {
     id: '6',
@@ -166,7 +172,6 @@ const SAMPLE_PROPERTIES: Property[] = [
       'https://images.unsplash.com/photo-1512672015474-a64af1aa331c?w=600&h=450&fit=crop',
       'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=450&fit=crop',
     ],
-    videoUrl: 'https://media.w3.org/2016/12/sample.mp4',
     beds: 1,
     baths: 1,
     hasParking: true,
@@ -178,12 +183,14 @@ const SAMPLE_PROPERTIES: Property[] = [
     description: 'Modern 1BHK with contemporary design. Located near college campus and shopping centers. Great locality with vibrant nightlife.',
     hasVideo: true,
     comments: 10,
+    availabilityStatus: 'Available Now',
   },
   {
     id: '7',
     uniqueId: 'PR-107',
     isFeatured: true,
     price: 15000,
+    discountPrice: 12500, // Triggers "1st Month Offer" badge
     type: 'Commercial Building',
     category: 'Commercial' as const,
     location: 'Butwal Market, Butwal',
@@ -204,6 +211,7 @@ const SAMPLE_PROPERTIES: Property[] = [
     description: 'Modern commercial building with multiple floors. Ideal for corporate offices, educational institutions, or large retail operations. Near main commercial hub.',
     hasVideo: true,
     comments: 14,
+    availabilityStatus: 'Available Now',
   },
 ]
 
@@ -213,7 +221,7 @@ export default function PropertyDiscoveryApp() {
   const clientTestimonialsRef = useRef<HTMLDivElement>(null)
 
   const [activePropertyId, setActivePropertyId] = useState<string | null>(null)
-  const [filteredProperties, setFilteredProperties] = useState(SAMPLE_PROPERTIES)
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>(SAMPLE_PROPERTIES)
   const [sort, setSort] = useState<'price-low' | 'price-high' | 'newest'>('newest')
   const [city, setCity] = useState('All')
   const [propertyCategory, setPropertyCategory] = useState<'Residential' | 'Commercial'>('Residential')

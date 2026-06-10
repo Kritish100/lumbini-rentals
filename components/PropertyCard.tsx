@@ -1,20 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import { Heart, MessageCircle, Play, Car, MapPin } from 'lucide-react'
+import { Heart, MessageCircle, Car, MapPin, Layers, Tag } from 'lucide-react'
 import Image from 'next/image'
 
 export interface Property {
   id: string
-  uniqueId: string // e.g., "PR-104"
+  uniqueId: string
   isFeatured: boolean
   price: number
+  discountPrice?: number // Ensures the 1st Month Offer triggers smoothly
   type: string
   category: 'Residential' | 'Commercial'
   location: string
   area: string
   images: string[]
-  videoUrl?: string
   beds: number
   baths: number
   hasParking: boolean
@@ -23,12 +23,14 @@ export interface Property {
   squareFootage?: number
   waterType: string
   waterIncluded: boolean
-  electricityMeterType: 'Individual' | 'Shared'
+  electricityMeterType: 'Individual' | 'Shared' | 'Separate' | 'Sub-Meter'
   bathroomType: 'Attached' | 'Shared'
   furnishingStatus: 'Furnished' | 'Semi-Furnished' | 'Unfurnished'
   description: string
   hasVideo: boolean
   comments: number
+  availabilityStatus?: 'Available Now' | 'Moving Out Soon' | 'Rented'
+  idealFor?: string
 }
 
 interface PropertyCardProps {
@@ -42,9 +44,10 @@ export default function PropertyCard({
   onClick,
   viewMode = 'grid',
 }: PropertyCardProps) {
-  const [isHovered, setIsHovered] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 50) + 10)
+
+  if (!property) return null
 
   const handleLikeClick = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -52,62 +55,115 @@ export default function PropertyCard({
     setLikeCount(isLiked ? likeCount - 1 : likeCount + 1)
   }
 
+  const getStatusBadgeConfig = () => {
+    const status = property.availabilityStatus || 'Available Now'
+    switch (status) {
+      case 'Rented':
+        return { 
+          text: 'Rented', 
+          classes: 'bg-slate-900/80 backdrop-blur-xs text-slate-200' 
+        }
+      case 'Moving Out Soon':
+        return { 
+          text: 'Moving Out Soon', 
+          classes: 'bg-amber-600 text-white shadow-xs' 
+        }
+      case 'Available Now':
+      default:
+        return { 
+          text: 'Available Now', 
+          // Premium filled, high-contrast soft mint green styling
+          classes: 'bg-emerald-600 text-white' 
+        }
+    }
+  }
+
+  const badge = getStatusBadgeConfig()
+  
+  const parkingLabel = !property.hasParking 
+    ? 'No Parking' 
+    : property.parkingType === 'Bikes Only' 
+      ? 'Bikes Only' 
+      : 'Bikes & Cars'
+
+  const mainImage = property.images && property.images.length > 0 
+    ? property.images[0] 
+    : '/placeholder-property.jpg'
+
+  // Safety fallback: If discountPrice isn't provided, we can simulate it or check for existence
+  const hasDiscount = property.discountPrice !== undefined && property.discountPrice > 0
+  const displayPrice = hasDiscount ? property.discountPrice! : property.price
+
   // LIST VIEW
   if (viewMode === 'list') {
     return (
-      <div
-        onClick={onClick}
-        className="flex gap-4 bg-white rounded-xl card-shadow hover:shadow-lg hover:border-orange-200 border border-slate-100 transition-all duration-300 p-4 cursor-pointer"
+      <div 
+        onClick={onClick} 
+        className="flex gap-4 bg-white rounded-xl border border-slate-100 hover:border-orange-200 hover:shadow-md transition-all duration-300 p-4 cursor-pointer group"
       >
-        {/* Image Container */}
-        <div className="relative w-48 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-slate-100">
-          <Image
-            src={property.images[0]}
-            alt={property.type}
-            fill
-            className="object-cover"
-            unoptimized
+        {/* Image Frame Container */}
+        <div className="relative w-48 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-slate-50">
+          <Image 
+            src={mainImage} 
+            alt={property.type} 
+            fill 
+            className="object-cover group-hover:scale-105 transition-transform duration-500" 
+            unoptimized 
           />
-          {property.hasVideo && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#1a1a2e]/40 group-hover:bg-[#1a1a2e]/50 transition-colors">
-              <div className="bg-orange-500 p-2 rounded-full text-white shadow-md">
-                <Play size={20} className="fill-current" />
-              </div>
+          
+          {/* Top Shadow Protective Cover */}
+          <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-slate-900/30 via-transparent to-transparent pointer-events-none z-5" />
+
+          {/* Left-Aligned Availability Badge */}
+          <div className="absolute top-2 left-2 z-10">
+            <div className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide shadow-xs ${badge.classes}`}>
+              {badge.text}
+            </div>
+          </div>
+
+          {/* Right-Aligned 1st Month Offer Badge */}
+          {hasDiscount && (
+            <div className="absolute top-2 right-2 z-10 bg-orange-600 text-white px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wide shadow-xs flex items-center gap-0.5">
+              <Tag size={9} className="fill-current" /> Active Offer
             </div>
           )}
         </div>
 
-        {/* Details */}
+        {/* Details Panel */}
         <div className="flex-1 flex flex-col justify-between">
           <div>
-            <div className="flex items-baseline gap-1 mb-1">
-              <span className="font-heading font-extrabold text-2xl text-[#1a1a2e]">
-                Rs {property.price.toLocaleString()}
+            <div className="flex items-baseline gap-1.5 mb-0.5">
+              <span className="font-heading font-extrabold text-2xl text-slate-900">
+                Rs {displayPrice.toLocaleString()}
               </span>
-              <span className="text-xs text-slate-500 font-medium">/month</span>
+              {hasDiscount && (
+                <span className="text-xs text-slate-400 line-through font-medium">
+                  Rs {property.price.toLocaleString()}
+                </span>
+              )}
+              <span className="text-xs text-slate-400 font-medium">/month</span>
             </div>
             
-            <h3 className="font-heading font-bold text-lg text-[#1a1a2e] mb-1 hover:text-orange-500 transition-colors">
+            <h3 className="font-heading font-bold text-lg text-slate-900 mb-0.5 group-hover:text-orange-500 transition-colors line-clamp-1">
               {property.type}
             </h3>
             
-            <p className="flex items-center gap-1 text-sm text-slate-600 mb-2">
-              <MapPin size={14} className="text-orange-500" /> {property.location}
+            <p className="flex items-center gap-1 text-sm text-slate-500 mb-2">
+              <MapPin size={14} className="text-orange-500 flex-shrink-0" /> {property.location}
             </p>
 
             <div className="flex flex-wrap gap-1.5 items-center">
               {property.category === 'Residential' && (
                 <>
                   {property.floorLevel && (
-                    <span className="text-xs font-semibold text-[#1a1a2e] bg-slate-100 px-2 py-0.5 rounded">
-                      {property.floorLevel}
+                    <span className="text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded flex items-center gap-1">
+                      <Layers size={11} className="text-slate-400" /> {property.floorLevel}
                     </span>
                   )}
                   <span className={`text-xs font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${
-                    property.hasParking ? 'bg-orange-50 text-orange-700' : 'bg-slate-100 text-slate-600'
+                    property.hasParking ? 'bg-orange-50 text-orange-700' : 'bg-slate-100 text-slate-500'
                   }`}>
-                    <Car size={12} /> 
-                    {property.hasParking ? `${property.parkingType || 'Bikes & Cars'}` : 'No Parking'}
+                    <Car size={12} /> {parkingLabel}
                   </span>
                 </>
               )}
@@ -119,10 +175,10 @@ export default function PropertyCard({
             </div>
           </div>
 
-          {/* Meta */}
-          <div className="flex items-center gap-4 text-sm text-slate-600 pt-2 border-t border-slate-50">
+          {/* List Footer Data */}
+          <div className="flex items-center gap-4 text-sm text-slate-500 pt-2 border-t border-slate-50">
             {property.category === 'Residential' ? (
-              <div className="flex gap-3 text-xs font-medium text-slate-500">
+              <div className="flex gap-2.5 text-xs font-medium text-slate-400">
                 <span>{property.beds} Beds</span>
                 <span>•</span>
                 <span>{property.baths} Baths</span>
@@ -131,16 +187,13 @@ export default function PropertyCard({
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">Commercial Space</span>
             )}
             
-            <div className="ml-auto flex items-center gap-4">
-              <button
-                onClick={handleLikeClick}
-                className="flex items-center gap-1 transition-all duration-200 hover:scale-110 cursor-pointer"
-              >
-                <Heart size={16} className={isLiked ? 'fill-red-500 text-red-500' : 'text-slate-400 hover:text-red-500'} />
+            <div className="ml-auto flex items-center gap-3.5">
+              <button onClick={handleLikeClick} className="flex items-center gap-1 transition-all duration-200 hover:scale-110 cursor-pointer text-slate-400 hover:text-red-500">
+                <Heart size={16} className={isLiked ? 'fill-red-500 text-red-500' : 'currentColor'} />
                 <span className="text-xs font-medium text-slate-500">{likeCount}</span>
               </button>
-              <span className="flex items-center gap-1">
-                <MessageCircle size={16} className="text-slate-400" />
+              <span className="flex items-center gap-1 text-slate-400">
+                <MessageCircle size={16} />
                 <span className="text-xs font-medium text-slate-500">{property.comments}</span>
               </span>
             </div>
@@ -150,92 +203,80 @@ export default function PropertyCard({
     )
   }
 
-  // GRID VIEW (Default)
+  // GRID VIEW (Default Layout)
   return (
-    <div
-      onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="bg-white rounded-xl overflow-hidden card-shadow hover:shadow-xl border border-slate-100 hover:border-orange-200 transition-all duration-300 cursor-pointer group flex flex-col h-full"
+    <div 
+      onClick={onClick} 
+      className="bg-white rounded-xl overflow-hidden border border-slate-100 hover:border-orange-200 hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col h-full"
     >
-      {/* Image Container with Hover Video Flip */}
-      <div className="relative w-full pt-[70%] bg-slate-100 overflow-hidden flex-shrink-0">
-        {!isHovered ? (
-          <Image
-            src={property.images[0]}
-            alt={property.type}
-            fill
-            className="object-cover group-hover:scale-105 transition-all duration-500"
-            unoptimized
-          />
-        ) : property.hasVideo ? (
-          <div className="absolute inset-0 w-full h-full bg-slate-900 flex items-center justify-center">
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover"
-              src={property.videoUrl || ''}
-            />
-            <div className="absolute bg-[#1a1a2e]/50 p-3 rounded-full backdrop-blur-xs pointer-events-none">
-              <Play size={24} className="text-white fill-white animate-pulse" />
-            </div>
-          </div>
-        ) : (
-          <Image
-            src={property.images[0]}
-            alt={property.type}
-            fill
-            className="object-cover scale-105 transition-all duration-500"
-            unoptimized
-          />
-        )}
+      {/* Media Window Box */}
+      <div className="relative w-full pt-[70%] bg-slate-50 overflow-hidden flex-shrink-0">
+        <Image 
+          src={mainImage} 
+          alt={property.type} 
+          fill 
+          className="object-cover group-hover:scale-105 transition-transform duration-500" 
+          unoptimized 
+        />
 
-        {/* Video Badge */}
-        {property.hasVideo && (
-          <div className="absolute top-3 right-3 bg-orange-500 text-white px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-md">
-            <Play size={10} className="fill-current" /> Video Tour
+        {/* Top Shadow Protective Cover */}
+        <div className="absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-slate-900/40 via-transparent to-transparent pointer-events-none z-5" />
+
+        {/* Left-Aligned Status Tag */}
+        <div className="absolute top-3 left-3 z-10">
+          <div className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm ${badge.classes}`}>
+            {badge.text}
+          </div>
+        </div>
+
+        {/* Right-Aligned 1st Month Offer Tag (Styled with vibrant Brand Orange) */}
+        {hasDiscount && (
+          <div className="absolute top-3 right-3 z-10 bg-orange-600 text-white px-2 py-0.5 rounded-md text-[9px] font-extrabold uppercase tracking-wider shadow-sm flex items-center gap-0.5">
+            <Tag size={9} className="fill-current" /> Active Offer
           </div>
         )}
 
-        {/* Price Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#1a1a2e]/80 via-[#1a1a2e]/40 to-transparent p-4 pt-10">
-          <div className="flex items-baseline gap-1">
+        {/* Base Gradient Overlay with Price metrics */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900/85 via-slate-900/30 to-transparent p-4 pt-10">
+          <div className="flex items-baseline gap-1.5">
             <span className="font-heading font-extrabold text-xl text-white">
-              Rs {property.price.toLocaleString()}
+              Rs {displayPrice.toLocaleString()}
             </span>
+            {hasDiscount && (
+              <span className="text-white/60 text-xs line-through font-normal">
+                Rs {property.price.toLocaleString()}
+              </span>
+            )}
             <span className="text-white/80 text-xs font-normal">/month</span>
           </div>
         </div>
       </div>
 
-      {/* Card Content */}
+      {/* Card Body Deck */}
       <div className="p-4 flex flex-col flex-1 justify-between">
         <div>
-          {/* Type and Location */}
-          <h3 className="font-heading font-bold text-base text-[#1a1a2e] mb-1 line-clamp-1 group-hover:text-orange-500 transition-colors">
+          <h3 className="font-heading font-bold text-base text-slate-900 mb-0.5 line-clamp-1 group-hover:text-orange-500 transition-colors">
             {property.type}
           </h3>
-          <p className="flex items-center gap-1 text-sm text-slate-600 mb-3">
+          
+          <p className="flex items-center gap-1 text-sm text-slate-500 mb-3">
             <MapPin size={14} className="text-orange-500 flex-shrink-0" />
             <span className="line-clamp-1">{property.location}</span>
           </p>
 
-          {/* Badges Layout */}
+          {/* Descriptive Badges Layout */}
           <div className="mb-4 flex flex-wrap gap-1.5 items-center">
             {property.category === 'Residential' && (
               <>
                 {property.floorLevel && (
-                  <span className="text-[11px] font-semibold text-[#1a1a2e] bg-slate-100 px-2 py-0.5 rounded">
-                    {property.floorLevel}
+                  <span className="text-[11px] font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded flex items-center gap-1">
+                    <Layers size={11} className="text-slate-400" /> {property.floorLevel}
                   </span>
                 )}
                 <span className={`text-[11px] font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${
-                  property.hasParking ? 'bg-orange-50 text-orange-700' : 'bg-slate-100 text-slate-600'
+                  property.hasParking ? 'bg-orange-50 text-orange-700' : 'bg-slate-100 text-slate-500'
                 }`}>
-                  <Car size={12} />
-                  {property.hasParking ? `${property.parkingType || 'Bikes & Cars'}` : 'No Parking'}
+                  <Car size={12} /> {parkingLabel}
                 </span>
               </>
             )}
@@ -247,32 +288,28 @@ export default function PropertyCard({
           </div>
         </div>
 
-        {/* Meta Stats Footer */}
-        <div className="flex items-center justify-between text-xs text-slate-600 pt-3 border-t border-slate-100">
+        {/* Footer Metrics Panel */}
+        <div className="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
           <div>
             {property.category === 'Residential' ? (
-              <div className="flex gap-2 text-slate-500 font-medium">
+              <div className="flex gap-2 text-slate-400 font-medium">
                 <span>{property.beds} Beds</span>
                 <span>•</span>
                 <span>{property.baths} Baths</span>
               </div>
             ) : (
-              <span className="font-bold uppercase tracking-wider text-[11px] text-emerald-600">Commercial</span>
+              <span className="font-bold uppercase tracking-wider text-[10px] text-emerald-600">Commercial</span>
             )}
           </div>
 
-          {/* Interactive actions */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={handleLikeClick}
-              className="cursor-pointer flex items-center gap-1 transition-all duration-200 hover:scale-110 text-slate-500"
-            >
-              <Heart size={18} className={isLiked ? 'fill-red-500 text-red-500' : 'text-slate-400 hover:text-red-500'} />
-              <span className="text-xs font-medium">{likeCount}</span>
+            <button onClick={handleLikeClick} className="cursor-pointer flex items-center gap-1 transition-all duration-200 hover:scale-110 text-slate-400 hover:text-red-500" >
+              <Heart size={17} className={isLiked ? 'fill-red-500 text-red-500' : 'currentColor'} />
+              <span className="text-xs font-medium text-slate-500">{likeCount}</span>
             </button>
-            <span className="flex items-center gap-1 text-slate-500">
-              <MessageCircle size={16} className="text-slate-400" />
-              <span className="text-xs font-medium">{property.comments}</span>
+            <span className="flex items-center gap-1 text-slate-400">
+              <MessageCircle size={16} />
+              <span className="text-xs font-medium text-slate-500">{property.comments}</span>
             </span>
           </div>
         </div>

@@ -1,6 +1,7 @@
 'use client'
 
-import { Share2, Music, Bookmark } from 'lucide-react'
+import React from 'react'
+import { FacebookIcon, InstagramIcon, TikTokIcon } from './ui/icons'
 
 interface OurSocialsProps {
   forwardedRef?: React.RefObject<HTMLDivElement>
@@ -9,37 +10,41 @@ interface OurSocialsProps {
 export default function OurSocials({ forwardedRef }: OurSocialsProps) {
   const socials = [
     {
-      name: 'Instagram',
-      icon: Share2,
-      url: 'https://instagram.com/primerentals',
-      color: 'from-pink-500 to-rose-500',
-      bgColor: 'bg-pink-50',
+      name: 'Facebook',
+      icon: FacebookIcon,
+      url: 'https://facebook.com/primerentals',
+      bgStyle: 'bg-[#1877F2] text-white p-5',
+      hoverShadow: 'hover:shadow-[0_10px_30px_-10px_rgba(24,119,242,0.6)]',
     },
     {
       name: 'TikTok',
-      icon: Music,
+      icon: TikTokIcon,
       url: 'https://tiktok.com/@primerentals',
-      color: 'from-black to-gray-800',
-      bgColor: 'bg-gray-50',
+      bgStyle: 'bg-[#000000] text-white p-5',
+      hoverShadow: 'hover:shadow-[0_10px_30px_-10px_rgba(37,244,238,0.4)]',
     },
     {
-      name: 'Facebook',
-      icon: Bookmark,
-      url: 'https://facebook.com/primerentals',
-      color: 'from-blue-600 to-blue-700',
-      bgColor: 'bg-blue-50',
+      name: 'Instagram',
+      icon: InstagramIcon,
+      url: 'https://instagram.com/primerentals',
+      // Fixed: Multi-stop gradient directly in Tailwind mapping out Yellow -> Pink -> Purple
+      bgStyle: 'bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white p-[22px]',
+      hoverShadow: 'hover:shadow-[0_10px_30px_-10px_rgba(238,42,123,0.5)]',
     },
   ]
 
   return (
-    <div className="py-16 px-6 bg-white border-t border-gray-200" ref={forwardedRef}>
+    <div 
+      className="py-16 px-6 bg-slate-50 border-t border-slate-200" 
+      ref={forwardedRef}
+    >
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="font-heading text-4xl font-bold text-gray-900 mb-4">
-            Our Socials
+          <h2 className="font-heading text-4xl font-bold text-slate-900 mb-4">
+            Connect With Us
           </h2>
-          <p className="text-lg text-gray-600">
-            Follow us for updates, tips, and exclusive property listings
+          <p className="text-lg text-slate-600 max-w-xl mx-auto">
+            Follow us for real-time room availability, premium apartment walk-throughs, and updates.
           </p>
         </div>
 
@@ -54,9 +59,10 @@ export default function OurSocials({ forwardedRef }: OurSocialsProps) {
                 target="_blank"
                 rel="noreferrer"
                 title={social.name}
-                className={`flex items-center justify-center p-6 bg-gradient-to-br ${social.color} rounded-2xl transition-smooth hover:shadow-lg hover:scale-110 cursor-pointer`}
+                className={`relative flex items-center justify-center transition-all duration-300 hover:-translate-y-2 active:scale-95 cursor-pointer rounded-2xl w-[84px] h-[84px] shadow-sm border border-slate-100/50 ${social.bgStyle} ${social.hoverShadow}`}
               >
-                <Icon size={40} className="text-white" />
+                {/* Icons will render cleanly and match in visual weight */}
+                <Icon className="w-full h-full object-contain" />
               </a>
             )
           })}

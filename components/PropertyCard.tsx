@@ -1,20 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import { Heart, MessageCircle, Play, Car, MapPin } from 'lucide-react'
+import { Heart, MessageCircle, Car, MapPin, Layers, Tag } from 'lucide-react'
 import Image from 'next/image'
 
 export interface Property {
   id: string
-  uniqueId: string // e.g., "PR-104"
+  uniqueId: string
   isFeatured: boolean
   price: number
+  discountPrice?: number // Ensures the 1st Month Offer triggers smoothly
   type: string
   category: 'Residential' | 'Commercial'
   location: string
   area: string
   images: string[]
-  videoUrl?: string
   beds: number
   baths: number
   hasParking: boolean
@@ -23,12 +23,14 @@ export interface Property {
   squareFootage?: number
   waterType: string
   waterIncluded: boolean
-  electricityMeterType: 'Individual' | 'Shared'
+  electricityMeterType: 'Individual' | 'Shared' | 'Separate' | 'Sub-Meter'
   bathroomType: 'Attached' | 'Shared'
   furnishingStatus: 'Furnished' | 'Semi-Furnished' | 'Unfurnished'
   description: string
   hasVideo: boolean
   comments: number
+  availabilityStatus?: 'Available Now' | 'Moving Out Soon' | 'Rented'
+  idealFor?: string
 }
 
 interface PropertyCardProps {
@@ -42,9 +44,10 @@ export default function PropertyCard({
   onClick,
   viewMode = 'grid',
 }: PropertyCardProps) {
-  const [isHovered, setIsHovered] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 50) + 10)
+
+  if (!property) return null
 
   const handleLikeClick = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -52,218 +55,205 @@ export default function PropertyCard({
     setLikeCount(isLiked ? likeCount - 1 : likeCount + 1)
   }
 
+  const getStatusBadgeConfig = () => {
+    const status = property.availabilityStatus || 'Available Now'
+    switch (status) {
+      case 'Rented':
+        return { text: 'Rented', classes: 'bg-slate-900/80 backdrop-blur-xs text-slate-200' }
+      case 'Moving Out Soon':
+        return { text: 'Moving Out Soon', classes: 'bg-amber-600 text-white shadow-xs' }
+      case 'Available Now':
+      default:
+        return { text: 'Available Now', classes: 'bg-emerald-600 text-white' }
+    }
+  }
+
+  const badge = getStatusBadgeConfig()
+  const parkingLabel = !property.hasParking ? 'No Parking' : property.parkingType === 'Bikes Only' ? 'Bikes Only' : 'Bikes & Cars'
+  const mainImage = property.images && property.images.length > 0 ? property.images[0] : '/placeholder-property.jpg'
+  const hasDiscount = property.discountPrice !== undefined && property.discountPrice > 0
+  const displayPrice = hasDiscount ? property.discountPrice! : property.price
+
+  // LIST VIEW
   if (viewMode === 'list') {
     return (
-      <div
-        onClick={onClick}
-        className="flex gap-4 bg-white rounded-xl card-shadow hover:card-shadow-hover transition-smooth p-4 cursor-pointer"
+      <div 
+        onClick={onClick} 
+        className="relative flex gap-4 bg-white rounded-xl border border-slate-100 hover:border-orange-200 hover:shadow-md transition-all duration-300 p-4 cursor-pointer group"
       >
-        {/* Image Container */}
-        <div className="relative w-48 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-gray-200">
-          <Image
-            src={property.images[0]}
-            alt={property.type}
-            fill
-            className="object-cover"
-            unoptimized
-          />
-          {property.hasVideo && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-              <Play size={32} className="text-white" />
-            </div>
-          )}
+        {/* Image Frame Container (Clean, no absolute overlays inside anymore) */}
+        <div className="relative w-48 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-slate-50">
+          <Image src={mainImage} alt={property.type} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+          <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-slate-900/10 via-transparent to-transparent pointer-events-none z-5" />
         </div>
 
-        {/* Details */}
+        {/* Details Panel */}
         <div className="flex-1 flex flex-col justify-between">
           <div>
-            <div className="flex items-baseline gap-2 mb-2">
-              <span className="font-heading font-bold text-2xl text-[#1a1a2e]">
-                Rs {property.price.toLocaleString()}
-              </span>
-              <span className="text-sm text-gray-500">/month</span>
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-baseline gap-1.5 mb-0.5">
+                <span className="font-heading font-extrabold text-2xl text-slate-900">
+                  Rs {displayPrice.toLocaleString()}
+                </span>
+                <span className="text-xs text-slate-400 font-medium">/month</span>
+              </div>
+              
+              {/* Status Badge moved cleanly outside of the image layout frame */}
+              <div className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide shadow-xs flex-shrink-0 ${badge.classes}`}>
+                {badge.text}
+              </div>
             </div>
-            <h3 className="font-heading font-semibold text-lg text-[#1a1a2e] mb-1">
+
+            <h3 className="font-heading font-bold text-lg text-slate-900 mb-0.5 group-hover:text-orange-500 transition-colors line-clamp-1">
               {property.type}
             </h3>
-            <p className="flex items-center gap-1 text-sm text-gray-600 mb-2">
-              <MapPin size={14} />
-              {property.location}
+            <p className="flex items-center gap-1 text-sm text-slate-500 mb-2">
+              <MapPin size={14} className="text-orange-500 flex-shrink-0" /> {property.location}
             </p>
-            {property.category === 'Residential' && (
-              <>
-                {property.floorLevel && (
-                  <span className="inline-flex text-xs font-medium text-gray-700 px-2 py-1 mb-2">
-                    {property.floorLevel}
-                  </span>
-                )}
-                <span className="inline-flex items-center gap-1 text-xs font-medium bg-blue-50 text-blue-700 px-2 py-1 rounded">
-                  <Car size={12} />
-                  {property.hasParking
-                    ? `Parking: ${property.parkingType || 'Bikes & Cars'}`
-                    : 'Parking: Unavailable'}
+
+            {/* Combined Badges row includes structural active offer badge */}
+            <div className="flex flex-wrap gap-1.5 items-center">
+              {hasDiscount && (
+                <span className="text-xs font-extrabold bg-orange-50 text-orange-700 border border-orange-100 px-2 py-0.5 rounded flex items-center gap-1 shadow-2xs">
+                  <Tag size={11} className="fill-current" /> Active Offer
                 </span>
-              </>
-            )}
-            {property.category === 'Commercial' && property.squareFootage && (
-              <span className="inline-flex text-xs font-medium text-gray-700 px-2 py-1">
-                {property.squareFootage.toLocaleString()} sq.ft.
-              </span>
-            )}
+              )}
+              {property.category === 'Residential' && (
+                <>
+                  {property.floorLevel && (
+                    <span className="text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded flex items-center gap-1">
+                      <Layers size={11} className="text-slate-400" /> {property.floorLevel}
+                    </span>
+                  )}
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${ property.hasParking ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-500' }`}>
+                    <Car size={12} /> {parkingLabel}
+                  </span>
+                </>
+              )}
+              {property.category === 'Commercial' && property.squareFootage && (
+                <span className="text-xs font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded">
+                  {property.squareFootage.toLocaleString()} sq.ft.
+                </span>
+              )}
+            </div>
           </div>
 
-          {/* Meta */}
-          <div className="flex items-center gap-4 text-sm text-gray-600">
+          {/* List Footer Data */}
+          <div className="flex items-center gap-4 text-sm text-slate-500 pt-2 border-t border-slate-50">
             {property.category === 'Residential' ? (
-              <>
+              <div className="flex gap-2.5 text-xs font-medium text-slate-400">
                 <span>{property.beds} Beds</span>
+                <span>•</span>
                 <span>{property.baths} Baths</span>
-              </>
+              </div>
             ) : (
-              <span className="text-emerald-600 font-medium">Commercial</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">Commercial Space</span>
             )}
-            <span className="ml-auto flex items-center gap-4">
-              <button
-                onClick={handleLikeClick}
-                className="flex items-center gap-1 transition-smooth hover:scale-110"
-              >
-                <Heart
-                  size={16}
-                  className={isLiked ? 'fill-red-500 text-red-500' : 'text-gray-400'}
-                />
-                <span className="text-xs">{likeCount}</span>
+            <div className="ml-auto flex items-center gap-3.5">
+              <button onClick={handleLikeClick} className="flex items-center gap-1 transition-all duration-200 hover:scale-110 cursor-pointer text-slate-400 hover:text-red-500">
+                <Heart size={16} className={isLiked ? 'fill-red-500 text-red-500' : 'currentColor'} />
+                <span className="text-xs font-medium text-slate-500">{likeCount}</span>
               </button>
-              <span className="flex items-center gap-1">
-                <MessageCircle size={16} className="text-gray-400" />
-                <span className="text-xs">{property.comments}</span>
+              <span className="flex items-center gap-1 text-slate-400">
+                <MessageCircle size={16} />
+                <span className="text-xs font-medium text-slate-500">{property.comments}</span>
               </span>
-            </span>
+            </div>
           </div>
         </div>
       </div>
     )
   }
 
-  // Grid View (default)
+  // GRID VIEW (Default Layout)
   return (
-    <div
-      onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="bg-white rounded-xl overflow-hidden card-shadow hover:card-shadow-hover transition-smooth cursor-pointer group"
+    <div 
+      onClick={onClick} 
+      className="bg-white rounded-xl overflow-hidden border border-slate-100 hover:border-orange-200 hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col h-full"
     >
-      {/* Image Container with Hover Video Flip */}
-      <div className="relative w-full pt-[75%] bg-gray-200 overflow-hidden">
-        {!isHovered ? (
-          <Image
-            src={property.images[0]}
-            alt={property.type}
-            fill
-            className="object-cover group-hover:scale-105 transition-smooth duration-300"
-            unoptimized
-          />
-        ) : property.hasVideo ? (
-          <div className="absolute inset-0 w-full h-full bg-black flex items-center justify-center">
-            <video
-              autoPlay
-              loop
-              muted
-              className="w-full h-full object-cover"
-              src={property.videoUrl || ''}
-            />
-            <Play
-              size={48}
-              className="text-white/50 absolute"
-              strokeWidth={1}
-            />
+      {/* Media Window Box (Now just contains status tag on upper-right layout alignment safely) */}
+      <div className="relative w-full pt-[70%] bg-slate-50 overflow-hidden flex-shrink-0">
+        <Image src={mainImage} alt={property.type} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+        <div className="absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-slate-900/30 via-transparent to-transparent pointer-events-none z-5" />
+        
+        {/* Only Availability Status remains, shifted securely to Top Right */}
+        <div className="absolute top-3 right-3 z-10">
+          <div className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm ${badge.classes}`}>
+            {badge.text}
           </div>
-        ) : (
-          <Image
-            src={property.images[0]}
-            alt={property.type}
-            fill
-            className="object-cover scale-105"
-            unoptimized
-          />
-        )}
+        </div>
 
-        {/* Video Badge */}
-        {property.hasVideo && (
-          <div className="absolute top-3 right-3 bg-black/60 text-white px-2 py-1 rounded text-xs font-semibold flex items-center gap-1">
-            <Play size={12} />
-            Video
+        {/* Bottom pricing gradient stays structural */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900/85 via-slate-900/30 to-transparent p-4 pt-10">
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-heading font-extrabold text-xl text-white">
+              Rs {displayPrice.toLocaleString()}
+            </span>
+            <span className="text-white/80 text-xs font-normal">/month</span>
           </div>
-        )}
-
-        {/* Price Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-          <span className="font-heading font-bold text-xl text-white">
-            Rs {property.price.toLocaleString()}
-          </span>
-          <p className="text-white/80 text-xs">per month</p>
         </div>
       </div>
 
-      {/* Card Content */}
-      <div className="p-4">
-        {/* Type and Location */}
-        <h3 className="font-heading font-semibold text-base text-[#1a1a2e] mb-1 line-clamp-1">
-          {property.type}
-        </h3>
-        <p className="flex items-center gap-1 text-sm text-gray-600 mb-3">
-          <MapPin size={14} />
-          <span className="line-clamp-1">{property.location}</span>
-        </p>
-
-        {/* Property Details */}
-        {property.category === 'Residential' && (
-          <>
-            {property.floorLevel && (
-              <p className="text-xs text-gray-600 mb-2">{property.floorLevel}</p>
-            )}
-            <div className="mb-3 inline-flex items-center gap-1 text-xs font-medium bg-blue-50 text-blue-700 px-2 py-1 rounded">
-              <Car size={12} />
-              {property.hasParking
-                ? `Parking: ${property.parkingType || 'Bikes & Cars'}`
-                : 'Parking: Unavailable'}
-            </div>
-          </>
-        )}
-        {property.category === 'Commercial' && property.squareFootage && (
-          <p className="text-xs font-medium text-emerald-600 mb-3">
-            {property.squareFootage.toLocaleString()} sq.ft.
+      {/* Card Body Deck */}
+      <div className="p-4 flex flex-col flex-1 justify-between">
+        <div>
+          <h3 className="font-heading font-bold text-base text-slate-900 mb-0.5 line-clamp-1 group-hover:text-orange-500 transition-colors">
+            {property.type}
+          </h3>
+          <p className="flex items-center gap-1 text-sm text-slate-500 mb-3">
+            <MapPin size={14} className="text-orange-500 flex-shrink-0" />
+            <span className="line-clamp-1">{property.location}</span>
           </p>
-        )}
 
-        {/* Meta Stats */}
-        <div className="flex items-center justify-between text-xs text-gray-600 pt-3 border-t border-gray-100">
-          <div className="flex gap-3">
-            {property.category === 'Residential' ? (
+          {/* Descriptive Badges Stack Layout - Active Offer sits here now */}
+          <div className="mb-4 flex flex-wrap gap-1.5 items-center">
+            {hasDiscount && (
+              <span className="text-[11px] font-extrabold bg-orange-50 text-orange-700 border border-orange-100 px-2 py-0.5 rounded flex items-center gap-1 shadow-2xs">
+                <Tag size={11} className="fill-current" /> Active Offer
+              </span>
+            )}
+            {property.category === 'Residential' && (
               <>
-                <span>{property.beds} Beds</span>
-                <span>{property.baths} Baths</span>
+                {property.floorLevel && (
+                  <span className="text-[11px] font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded flex items-center gap-1">
+                    <Layers size={11} className="text-slate-400" /> {property.floorLevel}
+                  </span>
+                )}
+                <span className={`text-[11px] font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${ property.hasParking ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-500' }`}>
+                  <Car size={12} /> {parkingLabel}
+                </span>
               </>
-            ) : (
-              <span className="font-medium text-emerald-600">Commercial</span>
+            )}
+            {property.category === 'Commercial' && property.squareFootage && (
+              <span className="text-[11px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded">
+                {property.squareFootage.toLocaleString()} sq.ft.
+              </span>
             )}
           </div>
+        </div>
 
-          {/* Like and Comment Buttons */}
-          <div className="">
-            <button
-              onClick={handleLikeClick}
-              className="cursor-pointer flex items-center gap-1 transition-smooth hover:scale-110"
-            >
-              <Heart
-                size={20}
-                className={isLiked ? 'fill-red-500 text-red-500' : 'text-gray-400'}
-              />
-              <span className="text-xs">{likeCount}</span>
+        {/* Footer Metrics Panel */}
+        <div className="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
+          <div>
+            {property.category === 'Residential' ? (
+              <div className="flex gap-2 text-slate-400 font-medium">
+                <span>{property.beds} Beds</span>
+                <span>•</span>
+                <span>{property.baths} Baths</span>
+              </div>
+            ) : (
+              <span className="font-bold uppercase tracking-wider text-[10px] text-emerald-600">Commercial</span>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={handleLikeClick} className="cursor-pointer flex items-center gap-1 transition-all duration-200 hover:scale-110 text-slate-400 hover:text-red-500" >
+              <Heart size={17} className={isLiked ? 'fill-red-500 text-red-500' : 'currentColor'} />
+              <span className="text-xs font-medium text-slate-500">{likeCount}</span>
             </button>
-            {/* <span className="flex items-center gap-1">
-              <MessageCircle size={14} className="text-gray-400" />
-              <span className="text-xs">{property.comments}</span>
-            </span> */}
+            <span className="flex items-center gap-1 text-slate-400">
+              <MessageCircle size={16} />
+              <span className="text-xs font-medium text-slate-500">{property.comments}</span>
+            </span>
           </div>
         </div>
       </div>

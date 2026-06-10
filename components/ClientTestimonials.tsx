@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Star, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Star, ChevronLeft, ChevronRight, X, SquarePen } from 'lucide-react'
 
 interface Review {
   id: string
@@ -17,73 +17,81 @@ interface ClientTestimonialsProps {
   forwardedRef?: React.RefObject<HTMLDivElement>
 }
 
-export default function ClientTestimonials({ forwardedRef }: ClientTestimonialsProps  ) {
-  const allReviews: Review[] = [
+export default function ClientTestimonials({ forwardedRef }: ClientTestimonialsProps) {
+  // Moved the mock review array directly into state so submissions append dynamically
+  const [reviews, setReviews] = useState<Review[]>([
     {
       id: '1',
       author: 'Rajesh Kumar',
       rating: 5,
-      text: 'Outstanding service! Found my perfect home within a week. The team was very helpful and professional.',
-      date: '2024-12-15',
+      text: 'Outstanding service! Found my perfect flat in Bhairahawa within a week. The team was very helpful and professional.',
+      date: '2026-04-15',
     },
     {
       id: '2',
       author: 'Priya Sharma',
       rating: 5,
-      text: 'Best rental platform I\'ve used. Verified properties and transparent pricing. Highly recommended!',
-      date: '2024-12-10',
+      text: "Best rental platform I've used in the Butwal area. Verified properties and completely transparent pricing. Highly recommended!",
+      date: '2026-04-10',
     },
     {
       id: '3',
       author: 'Amit Patel',
       rating: 4,
-      text: 'Good experience overall. Property quality is excellent but location took longer to find.',
-      date: '2024-12-05',
+      text: 'Good experience overall. Property quality is excellent but finding a commercial space took slightly longer.',
+      date: '2026-03-25',
     },
     {
       id: '4',
       author: 'Neha Singh',
       rating: 5,
-      text: 'Lumbini Rentals made renting hassle-free. The filtering options are fantastic. Will use again!',
-      date: '2024-11-28',
+      text: 'Lumbini Rentals made renting completely hassle-free. The filtering options are fantastic for finding single rooms. Will use again!',
+      date: '2026-03-18',
     },
     {
       id: '5',
       author: 'Sanjay Kumar',
       rating: 4,
-      text: 'Great selection of properties. Quick response from landlords. Very satisfied.',
-      date: '2024-11-20',
+      text: 'Great selection of rooms and apartments. Quick response via WhatsApp from the team. Very satisfied.',
+      date: '2026-03-02',
     },
     {
       id: '6',
       author: 'Meera Gupta',
       rating: 5,
-      text: 'Customer support was exceptional. They helped me through every step of the rental process.',
-      date: '2024-11-15',
+      text: 'Customer support was exceptional. They helped me through every step of renting an entire home.',
+      date: '2026-02-15',
     },
     {
       id: '7',
       author: 'Vikram Singh',
-      rating: 3,
-      text: 'Good platform but could improve the search filters. Overall decent experience.',
-      date: '2024-11-10',
+      rating: 4,
+      text: 'Good platform, local listings are very accurate. Decent experience booking my BHK flat.',
+      date: '2026-02-10',
     },
     {
       id: '8',
-      author: 'Aisha Patel',
+      author: 'Aisha Thapa',
       rating: 5,
-      text: 'Amazing experience renting through Prime Rentals. Very transparent and professional team!',
-      date: '2024-11-05',
+      text: 'Amazing experience renting through Lumbini Rentals. Very transparent, local, and professional team!',
+      date: '2026-01-20',
     },
-  ]
+  ])
 
+  // Review Form States
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [newAuthor, setNewAuthor] = useState('')
+  const [newRating, setNewRating] = useState(5)
+  const [newText, setNewText] = useState('')
+  const [hoveredRating, setHoveredRating] = useState<number | null>(null)
+
+  // Layout Controls
   const [sortBy, setSortBy] = useState<SortOption>('newest')
   const [currentPage, setCurrentPage] = useState(1)
   const reviewsPerPage = 3
 
   const getSortedReviews = () => {
-    let sorted = [...allReviews]
-
+    let sorted = [...reviews]
     switch (sortBy) {
       case 'newest':
         sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -98,7 +106,6 @@ export default function ClientTestimonials({ forwardedRef }: ClientTestimonialsP
         sorted.sort((a, b) => a.rating - b.rating)
         break
     }
-
     return sorted
   }
 
@@ -107,6 +114,30 @@ export default function ClientTestimonials({ forwardedRef }: ClientTestimonialsP
   const startIdx = (currentPage - 1) * reviewsPerPage
   const endIdx = startIdx + reviewsPerPage
   const currentReviews = sortedReviews.slice(startIdx, endIdx)
+
+  // Form Submission Handler
+  const handleSubmitReview = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newAuthor.trim() || !newText.trim()) return
+
+    const newReviewEntry: Review = {
+      id: String(Date.now()),
+      author: newAuthor,
+      rating: newRating,
+      text: newText,
+      // Generates the current timestamp matching our 2026 timeline setup
+      date: new Date().toISOString().split('T')[0],
+    }
+
+    setReviews([newReviewEntry, ...reviews])
+    
+    // Reset Form Inputs
+    setNewAuthor('')
+    setNewText('')
+    setNewRating(5)
+    setIsFormOpen(false)
+    setCurrentPage(1) // Push view back to first page to see the post instantly
+  }
 
   const handlePreviousPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1))
@@ -123,7 +154,6 @@ export default function ClientTestimonials({ forwardedRef }: ClientTestimonialsP
   const renderPageButtons = () => {
     const pages = []
     const maxVisible = 5
-
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i)
@@ -143,23 +173,127 @@ export default function ClientTestimonials({ forwardedRef }: ClientTestimonialsP
         }
       }
     }
-
     return pages
   }
 
   return (
-    <div className="py-16 px-6 bg-gradient-to-br from-emerald-50 to-teal-50 border-t border-emerald-200" ref={forwardedRef}>
+    <div className="py-16 px-6 bg-gradient-to-br from-slate-50 to-slate-100 border-t border-slate-200" ref={forwardedRef}>
       <div className="max-w-6xl mx-auto">
+        
+        {/* Header Section */}
         <div className="text-center mb-12">
-          <h2 className="font-heading text-4xl font-bold text-emerald-900 mb-4">
+          <h2 className="font-heading text-4xl font-bold text-slate-900 mb-4">
             Client Testimonials
           </h2>
-          <p className="text-lg text-emerald-700">
-            What our satisfied customers are saying about Prime Rentals
+          <p className="text-lg text-slate-600 max-w-xl mx-auto mb-6">
+            What our customers are saying about renting with Lumbini Rentals
           </p>
+          
+          {/* Add Review Trigger Button */}
+          {!isFormOpen && (
+            <button
+              onClick={() => setIsFormOpen(true)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-semibold text-sm rounded-lg transition-all duration-200 shadow-sm shadow-orange-600/10 active:scale-95"
+            >
+              <SquarePen size={16} /> Write a Review
+            </button>
+          )}
         </div>
 
-        {/* Sort Dropdown */}
+        {/* Dynamic Form Drawer Block */}
+        {isFormOpen && (
+          <div className="mb-12 max-w-xl mx-auto bg-white p-6 rounded-2xl border border-slate-200 shadow-lg relative animate-in fade-in slide-in-from-top-4 duration-300">
+            <button
+              onClick={() => setIsFormOpen(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <X size={18} />
+            </button>
+            
+            <h3 className="text-lg font-bold text-slate-900 mb-4">Share Your Experience</h3>
+            
+            <form onSubmit={handleSubmitReview} className="space-y-4">
+              {/* Interactive Star Selection Row */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                  Your Rating
+                </label>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setNewRating(star)}
+                      onMouseEnter={() => setHoveredRating(star)}
+                      onMouseLeave={() => setHoveredRating(null)}
+                      className="transition-transform duration-100 hover:scale-110"
+                    >
+                      <Star
+                        size={24}
+                        className={`${
+                          star <= (hoveredRating ?? newRating)
+                            ? 'fill-orange-500 text-orange-500'
+                            : 'text-slate-200'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Name input field */}
+              <div>
+                <label htmlFor="reviewer-name" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                  Full Name
+                </label>
+                <input
+                  id="reviewer-name"
+                  type="text"
+                  required
+                  placeholder="e.g. Ram Bahadur"
+                  value={newAuthor}
+                  onChange={(e) => setNewAuthor(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+              </div>
+
+              {/* Description Input Block */}
+              <div>
+                <label htmlFor="reviewer-text" className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                  Review Details
+                </label>
+                <textarea
+                  id="reviewer-text"
+                  required
+                  rows={3}
+                  placeholder="Tell others about your experience renting with us..."
+                  value={newText}
+                  onChange={(e) => setNewText(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+              </div>
+
+              {/* Action Operations row */}
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsFormOpen(false)}
+                  className="px-4 py-2 text-slate-500 font-medium text-sm rounded-lg hover:bg-slate-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm rounded-lg transition-all shadow-sm active:scale-95"
+                >
+                  Submit Review
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Toolbar Sort Controls */}
         <div className="mb-8 flex justify-end">
           <select
             value={sortBy}
@@ -167,7 +301,7 @@ export default function ClientTestimonials({ forwardedRef }: ClientTestimonialsP
               setSortBy(e.target.value as SortOption)
               setCurrentPage(1)
             }}
-            className="px-4 py-2 border border-emerald-300 rounded-lg bg-white text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-emerald-600"
+            className="px-4 py-2 border border-slate-300 rounded-lg bg-white text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
@@ -181,34 +315,34 @@ export default function ClientTestimonials({ forwardedRef }: ClientTestimonialsP
           {currentReviews.map((review) => (
             <div
               key={review.id}
-              className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-smooth"
+              className="bg-white rounded-xl p-6 shadow-md border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
             >
-              {/* Rating */}
-              <div className="flex items-center gap-1 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    size={18}
-                    className={
-                      i < review.rating
-                        ? 'fill-yellow-400 text-yellow-400'
-                        : 'text-gray-300'
-                    }
-                  />
-                ))}
+              <div>
+                {/* Star Layout */}
+                <div className="flex items-center gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      size={18}
+                      className={
+                        i < review.rating ? 'fill-orange-500 text-orange-500' : 'text-slate-200'
+                      }
+                    />
+                  ))}
+                </div>
+                
+                {/* Content text */}
+                <p className="text-slate-700 text-sm leading-relaxed mb-4 min-h-[72px]">
+                  "{review.text}"
+                </p>
               </div>
-
-              {/* Review Text */}
-              <p className="text-gray-700 text-sm leading-relaxed mb-4">
-                "{review.text}"
-              </p>
-
-              {/* Author and Date */}
-              <div className="border-t border-gray-200 pt-4">
-                <p className="font-semibold text-gray-900 text-sm">
+              
+              {/* Author Attribution Base */}
+              <div className="border-t border-slate-100 pt-4">
+                <p className="font-semibold text-slate-900 text-sm">
                   {review.author}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-slate-400 mt-1">
                   {new Date(review.date).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'short',
@@ -222,30 +356,27 @@ export default function ClientTestimonials({ forwardedRef }: ClientTestimonialsP
 
         {/* Pagination Controls */}
         <div className="flex items-center justify-center gap-2">
-          {/* Previous Button */}
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 1}
-            className={`flex items-center gap-1 px-4 py-2 rounded-lg font-medium transition-smooth ${
+            className={`flex items-center gap-1 px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm ${
               currentPage === 1
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-white text-emerald-600 border border-emerald-300 hover:bg-emerald-50'
+                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:text-orange-600'
             }`}
           >
-            <ChevronLeft size={18} />
-            Previous
+            <ChevronLeft size={16} /> Previous
           </button>
 
-          {/* Page Numbers */}
           <div className="flex items-center gap-1">
             {renderPageButtons().map((page) => (
               <button
                 key={page}
                 onClick={() => handlePageClick(page)}
-                className={`w-10 h-10 rounded-lg font-medium transition-smooth ${
+                className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 text-sm ${
                   currentPage === page
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-white text-emerald-600 border border-emerald-300 hover:bg-emerald-50'
+                    ? 'bg-orange-600 text-white shadow-sm shadow-orange-600/20'
+                    : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:text-orange-600'
                 }`}
               >
                 {page}
@@ -253,25 +384,22 @@ export default function ClientTestimonials({ forwardedRef }: ClientTestimonialsP
             ))}
           </div>
 
-          {/* Next Button */}
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages}
-            className={`flex items-center gap-1 px-4 py-2 rounded-lg font-medium transition-smooth ${
+            className={`flex items-center gap-1 px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm ${
               currentPage === totalPages
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-white text-emerald-600 border border-emerald-300 hover:bg-emerald-50'
+                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:text-orange-600'
             }`}
           >
-            Next
-            <ChevronRight size={18} />
+            Next <ChevronRight size={16} />
           </button>
         </div>
 
-        {/* Page Info */}
-        <div className="text-center mt-6 text-sm text-gray-600">
-          Showing {startIdx + 1} to {Math.min(endIdx, sortedReviews.length)} of{' '}
-          {sortedReviews.length} reviews
+        {/* Counter Info Footer */}
+        <div className="text-center mt-6 text-xs font-medium text-slate-400 uppercase tracking-wider">
+          Showing {startIdx + 1} to {Math.min(endIdx, sortedReviews.length)} of {sortedReviews.length} reviews
         </div>
       </div>
     </div>

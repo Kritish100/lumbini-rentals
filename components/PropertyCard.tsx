@@ -59,38 +59,18 @@ export default function PropertyCard({
     const status = property.availabilityStatus || 'Available Now'
     switch (status) {
       case 'Rented':
-        return { 
-          text: 'Rented', 
-          classes: 'bg-slate-900/80 backdrop-blur-xs text-slate-200' 
-        }
+        return { text: 'Rented', classes: 'bg-slate-900/80 backdrop-blur-xs text-slate-200' }
       case 'Moving Out Soon':
-        return { 
-          text: 'Moving Out Soon', 
-          classes: 'bg-amber-600 text-white shadow-xs' 
-        }
+        return { text: 'Moving Out Soon', classes: 'bg-amber-600 text-white shadow-xs' }
       case 'Available Now':
       default:
-        return { 
-          text: 'Available Now', 
-          // Premium filled, high-contrast soft mint green styling
-          classes: 'bg-emerald-600 text-white' 
-        }
+        return { text: 'Available Now', classes: 'bg-emerald-600 text-white' }
     }
   }
 
   const badge = getStatusBadgeConfig()
-  
-  const parkingLabel = !property.hasParking 
-    ? 'No Parking' 
-    : property.parkingType === 'Bikes Only' 
-      ? 'Bikes Only' 
-      : 'Bikes & Cars'
-
-  const mainImage = property.images && property.images.length > 0 
-    ? property.images[0] 
-    : '/placeholder-property.jpg'
-
-  // Safety fallback: If discountPrice isn't provided, we can simulate it or check for existence
+  const parkingLabel = !property.hasParking ? 'No Parking' : property.parkingType === 'Bikes Only' ? 'Bikes Only' : 'Bikes & Cars'
+  const mainImage = property.images && property.images.length > 0 ? property.images[0] : '/placeholder-property.jpg'
   const hasDiscount = property.discountPrice !== undefined && property.discountPrice > 0
   const displayPrice = hasDiscount ? property.discountPrice! : property.price
 
@@ -99,60 +79,45 @@ export default function PropertyCard({
     return (
       <div 
         onClick={onClick} 
-        className="flex gap-4 bg-white rounded-xl border border-slate-100 hover:border-orange-200 hover:shadow-md transition-all duration-300 p-4 cursor-pointer group"
+        className="relative flex gap-4 bg-white rounded-xl border border-slate-100 hover:border-orange-200 hover:shadow-md transition-all duration-300 p-4 cursor-pointer group"
       >
-        {/* Image Frame Container */}
+        {/* Image Frame Container (Clean, no absolute overlays inside anymore) */}
         <div className="relative w-48 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-slate-50">
-          <Image 
-            src={mainImage} 
-            alt={property.type} 
-            fill 
-            className="object-cover group-hover:scale-105 transition-transform duration-500" 
-            unoptimized 
-          />
-          
-          {/* Top Shadow Protective Cover */}
-          <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-slate-900/30 via-transparent to-transparent pointer-events-none z-5" />
-
-          {/* Left-Aligned Availability Badge */}
-          <div className="absolute top-2 left-2 z-10">
-            <div className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide shadow-xs ${badge.classes}`}>
-              {badge.text}
-            </div>
-          </div>
-
-          {/* Right-Aligned 1st Month Offer Badge */}
-          {hasDiscount && (
-            <div className="absolute top-2 right-2 z-10 bg-orange-600 text-white px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wide shadow-xs flex items-center gap-0.5">
-              <Tag size={9} className="fill-current" /> Active Offer
-            </div>
-          )}
+          <Image src={mainImage} alt={property.type} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+          <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-slate-900/10 via-transparent to-transparent pointer-events-none z-5" />
         </div>
 
         {/* Details Panel */}
         <div className="flex-1 flex flex-col justify-between">
           <div>
-            <div className="flex items-baseline gap-1.5 mb-0.5">
-              <span className="font-heading font-extrabold text-2xl text-slate-900">
-                Rs {displayPrice.toLocaleString()}
-              </span>
-              {hasDiscount && (
-                <span className="text-xs text-slate-400 line-through font-medium">
-                  Rs {property.price.toLocaleString()}
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-baseline gap-1.5 mb-0.5">
+                <span className="font-heading font-extrabold text-2xl text-slate-900">
+                  Rs {displayPrice.toLocaleString()}
                 </span>
-              )}
-              <span className="text-xs text-slate-400 font-medium">/month</span>
+                <span className="text-xs text-slate-400 font-medium">/month</span>
+              </div>
+              
+              {/* Status Badge moved cleanly outside of the image layout frame */}
+              <div className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide shadow-xs flex-shrink-0 ${badge.classes}`}>
+                {badge.text}
+              </div>
             </div>
-            
+
             <h3 className="font-heading font-bold text-lg text-slate-900 mb-0.5 group-hover:text-orange-500 transition-colors line-clamp-1">
               {property.type}
             </h3>
-            
             <p className="flex items-center gap-1 text-sm text-slate-500 mb-2">
               <MapPin size={14} className="text-orange-500 flex-shrink-0" /> {property.location}
             </p>
 
+            {/* Combined Badges row includes structural active offer badge */}
             <div className="flex flex-wrap gap-1.5 items-center">
+              {hasDiscount && (
+                <span className="text-xs font-extrabold bg-orange-50 text-orange-700 border border-orange-100 px-2 py-0.5 rounded flex items-center gap-1 shadow-2xs">
+                  <Tag size={11} className="fill-current" /> Active Offer
+                </span>
+              )}
               {property.category === 'Residential' && (
                 <>
                   {property.floorLevel && (
@@ -160,9 +125,7 @@ export default function PropertyCard({
                       <Layers size={11} className="text-slate-400" /> {property.floorLevel}
                     </span>
                   )}
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${
-                    property.hasParking ? 'bg-orange-50 text-orange-700' : 'bg-slate-100 text-slate-500'
-                  }`}>
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${ property.hasParking ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-500' }`}>
                     <Car size={12} /> {parkingLabel}
                   </span>
                 </>
@@ -186,7 +149,6 @@ export default function PropertyCard({
             ) : (
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">Commercial Space</span>
             )}
-            
             <div className="ml-auto flex items-center gap-3.5">
               <button onClick={handleLikeClick} className="flex items-center gap-1 transition-all duration-200 hover:scale-110 cursor-pointer text-slate-400 hover:text-red-500">
                 <Heart size={16} className={isLiked ? 'fill-red-500 text-red-500' : 'currentColor'} />
@@ -209,44 +171,24 @@ export default function PropertyCard({
       onClick={onClick} 
       className="bg-white rounded-xl overflow-hidden border border-slate-100 hover:border-orange-200 hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col h-full"
     >
-      {/* Media Window Box */}
+      {/* Media Window Box (Now just contains status tag on upper-right layout alignment safely) */}
       <div className="relative w-full pt-[70%] bg-slate-50 overflow-hidden flex-shrink-0">
-        <Image 
-          src={mainImage} 
-          alt={property.type} 
-          fill 
-          className="object-cover group-hover:scale-105 transition-transform duration-500" 
-          unoptimized 
-        />
-
-        {/* Top Shadow Protective Cover */}
-        <div className="absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-slate-900/40 via-transparent to-transparent pointer-events-none z-5" />
-
-        {/* Left-Aligned Status Tag */}
-        <div className="absolute top-3 left-3 z-10">
+        <Image src={mainImage} alt={property.type} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+        <div className="absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-slate-900/30 via-transparent to-transparent pointer-events-none z-5" />
+        
+        {/* Only Availability Status remains, shifted securely to Top Right */}
+        <div className="absolute top-3 right-3 z-10">
           <div className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm ${badge.classes}`}>
             {badge.text}
           </div>
         </div>
 
-        {/* Right-Aligned 1st Month Offer Tag (Styled with vibrant Brand Orange) */}
-        {hasDiscount && (
-          <div className="absolute top-3 right-3 z-10 bg-orange-600 text-white px-2 py-0.5 rounded-md text-[9px] font-extrabold uppercase tracking-wider shadow-sm flex items-center gap-0.5">
-            <Tag size={9} className="fill-current" /> Active Offer
-          </div>
-        )}
-
-        {/* Base Gradient Overlay with Price metrics */}
+        {/* Bottom pricing gradient stays structural */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-slate-900/85 via-slate-900/30 to-transparent p-4 pt-10">
           <div className="flex items-baseline gap-1.5">
             <span className="font-heading font-extrabold text-xl text-white">
               Rs {displayPrice.toLocaleString()}
             </span>
-            {hasDiscount && (
-              <span className="text-white/60 text-xs line-through font-normal">
-                Rs {property.price.toLocaleString()}
-              </span>
-            )}
             <span className="text-white/80 text-xs font-normal">/month</span>
           </div>
         </div>
@@ -258,14 +200,18 @@ export default function PropertyCard({
           <h3 className="font-heading font-bold text-base text-slate-900 mb-0.5 line-clamp-1 group-hover:text-orange-500 transition-colors">
             {property.type}
           </h3>
-          
           <p className="flex items-center gap-1 text-sm text-slate-500 mb-3">
             <MapPin size={14} className="text-orange-500 flex-shrink-0" />
             <span className="line-clamp-1">{property.location}</span>
           </p>
 
-          {/* Descriptive Badges Layout */}
+          {/* Descriptive Badges Stack Layout - Active Offer sits here now */}
           <div className="mb-4 flex flex-wrap gap-1.5 items-center">
+            {hasDiscount && (
+              <span className="text-[11px] font-extrabold bg-orange-50 text-orange-700 border border-orange-100 px-2 py-0.5 rounded flex items-center gap-1 shadow-2xs">
+                <Tag size={11} className="fill-current" /> Active Offer
+              </span>
+            )}
             {property.category === 'Residential' && (
               <>
                 {property.floorLevel && (
@@ -273,9 +219,7 @@ export default function PropertyCard({
                     <Layers size={11} className="text-slate-400" /> {property.floorLevel}
                   </span>
                 )}
-                <span className={`text-[11px] font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${
-                  property.hasParking ? 'bg-orange-50 text-orange-700' : 'bg-slate-100 text-slate-500'
-                }`}>
+                <span className={`text-[11px] font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${ property.hasParking ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-500' }`}>
                   <Car size={12} /> {parkingLabel}
                 </span>
               </>
@@ -301,7 +245,6 @@ export default function PropertyCard({
               <span className="font-bold uppercase tracking-wider text-[10px] text-emerald-600">Commercial</span>
             )}
           </div>
-
           <div className="flex items-center gap-3">
             <button onClick={handleLikeClick} className="cursor-pointer flex items-center gap-1 transition-all duration-200 hover:scale-110 text-slate-400 hover:text-red-500" >
               <Heart size={17} className={isLiked ? 'fill-red-500 text-red-500' : 'currentColor'} />

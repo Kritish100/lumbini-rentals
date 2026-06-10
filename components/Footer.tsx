@@ -16,7 +16,7 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-6 py-10 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
         <div>
           <h3 className="text-white font-semibold text-lg">
-            Looking for a premium rental property?
+            Looking for an ideal rental property?
           </h3>
           <p className="text-sm text-slate-400 mt-1">
             Browse our verified rooms, flats, and commercial spaces across Bhairahawa & Butwal.

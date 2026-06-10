@@ -26,7 +26,7 @@ export default function HeroBanner({
         Replaced the slate-950 dark layer with a beautiful, clean white/slate-100 overlay gradient.
         This washes the photo in a bright light while retaining the home image faintly in the background.
       */}
-      <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/80 to-slate-50/30 z-0" />
+      <div className="absolute inset-0 bg-gradient-to-r from-white/98 via-white/90 to-slate-50/20 z-0" />
 
       {/* Main Container Content */}
       <div className="relative max-w-6xl mx-auto z-10 w-full">

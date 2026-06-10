@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { SlidersHorizontal, RefreshCw, Layers } from 'lucide-react'
 import HeroBanner from '@/components/HeroBanner'
 import AdvancedFilters from '@/components/AdvancedFilters'
 import PropertyCard, { type Property } from '@/components/PropertyCard'
@@ -209,6 +210,7 @@ export default function PropertyDiscoveryApp() {
   const listPropertyRef = useRef<HTMLDivElement>(null)
   const ourSocialsRef = useRef<HTMLDivElement>(null)
   const clientTestimonialsRef = useRef<HTMLDivElement>(null)
+
   const [activePropertyId, setActivePropertyId] = useState<string | null>(null)
   const [filteredProperties, setFilteredProperties] = useState(SAMPLE_PROPERTIES)
   const [sort, setSort] = useState<'price-low' | 'price-high' | 'newest'>('newest')
@@ -278,6 +280,17 @@ export default function PropertyDiscoveryApp() {
     setViewMode(mode)
   }
 
+  // Clear all configurations back to standard default view
+  const handleResetFilters = () => {
+    setSort('newest')
+    setCity('All')
+    setPropertyCategory('Residential')
+    setType('All')
+    // Directly re-apply the structural defaults
+    let defaultProperties = SAMPLE_PROPERTIES.filter(p => p.category === 'Residential')
+    setFilteredProperties(defaultProperties)
+  }
+
   const handleListPropertyClick = () => {
     listPropertyRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -292,8 +305,11 @@ export default function PropertyDiscoveryApp() {
 
   const activeProperty = filteredProperties.find((p) => p.id === activePropertyId) || null
 
+  // Check if any filters are customized away from the baseline state
+  const isFiltered = city !== 'All' || type !== 'All' || sort !== 'newest' || propertyCategory !== 'Residential'
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white text-slate-900">
       {/* Hero Banner */}
       <HeroBanner
         onListPropertyClick={handleListPropertyClick}
@@ -310,8 +326,64 @@ export default function PropertyDiscoveryApp() {
         onViewModeChange={handleViewModeChange}
       />
 
-      {/* Properties Feed */}
+      {/* Properties Feed Marketplace Container */}
       <section className="max-w-6xl mx-auto px-6 py-8 pb-20">
+        
+        {/* BRAND NEW SUMMARY AREA: Placed elegantly at the top of the feed */}
+        <div className="mb-6 pb-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500 font-medium">
+            <SlidersHorizontal size={16} className="text-slate-400 mr-1" />
+            <span className="text-slate-700 font-semibold">Showing results for:</span>
+            
+            {/* Category Tag (Deep Corporate Blue Frame) */}
+            <span className="bg-slate-900 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
+              {propertyCategory}
+            </span>
+
+            {/* City Tag (Changes to Active Brand Orange when specified) */}
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200 ${
+              city !== 'All'
+                ? 'bg-orange-50 text-orange-600 border border-orange-100 shadow-sm shadow-orange-500/5'
+                : 'bg-slate-100 text-slate-700'
+            }`}>
+              {city === 'All' ? 'All Cities' : city}
+            </span>
+
+            {/* Type Specific Tag */}
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200 ${
+              type !== 'All'
+                ? 'bg-orange-50 text-orange-600 border border-orange-100 shadow-sm shadow-orange-500/5'
+                : 'bg-slate-100 text-slate-700'
+            }`}>
+              {type === 'All' ? `All types` : type}
+            </span>
+
+            {/* Sorting Info Tag */}
+            <span className="bg-slate-50 text-slate-400 text-xs font-normal px-2.5 py-1 rounded-md italic border border-slate-100">
+              Sorted by: {sort === 'newest' ? 'Newest First' : sort === 'price-low' ? 'Lowest Price' : 'Highest Price'}
+            </span>
+          </div>
+
+          {/* Results Count & Action Link */}
+          <div className="flex items-center gap-3 self-start md:self-auto">
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+              <Layers size={13} className="text-slate-400" />
+              <span>{filteredProperties.length} Matches Found</span>
+            </div>
+
+            {isFiltered && (
+              <button
+                onClick={handleResetFilters}
+                className="cursor-pointer flex items-center gap-1.5 text-xs text-slate-500 hover:text-orange-600 font-bold tracking-wide uppercase transition-all duration-200 hover:bg-orange-50 px-2.5 py-1.5 rounded-lg border border-transparent hover:border-orange-100"
+              >
+                <RefreshCw size={12} className="animate-hover" />
+                Clear Filters
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Displaying Layout Grid/List Content */}
         {filteredProperties.length > 0 ? (
           viewMode === 'grid' ? (
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -337,10 +409,16 @@ export default function PropertyDiscoveryApp() {
             </div>
           )
         ) : (
-          <div className="text-center py-20">
-            <p className="text-gray-600 text-lg">
+          <div className="text-center py-24 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+            <p className="text-slate-500 text-lg font-medium">
               No properties found matching your filters.
             </p>
+            <button 
+              onClick={handleResetFilters}
+              className="mt-3 cursor-pointer inline-flex items-center gap-2 bg-slate-900 text-white font-semibold px-4 py-2 rounded-xl text-sm shadow-md hover:bg-orange-500 transition-all duration-200"
+            >
+              Reset Search Filter
+            </button>
           </div>
         )}
       </section>

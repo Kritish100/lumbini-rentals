@@ -9,6 +9,7 @@ import PropertyDetailSheet from '@/components/PropertyDetailSheet'
 import ListYourProperty from '@/components/ListYourProperty'
 import OurSocials from '@/components/OurSocials'
 import ClientTestimonials from '@/components/ClientTestimonials'
+import Footer from '@/components/Footer'
 
 // Enhanced Sample property data with all fields
 const SAMPLE_PROPERTIES: Property[] = [
@@ -438,6 +439,9 @@ export default function PropertyDiscoveryApp() {
 
       {/* Client Testimonials Section */}
       <ClientTestimonials forwardedRef={clientTestimonialsRef} />
+
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

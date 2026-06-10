@@ -46,11 +46,12 @@ export default function HeroBanner({
               alt="Lumbini Rentals" 
               className="inline-block mr-2 object-contain" 
             />
-            <span>Lumbini Rentals</span>
+            <span>Lumbini</span>
+            <span className="text-orange-500">Rentals</span>
           </h1>
           
           {/* Vibrant Orange Tagline matching your branding accents */}
-          <p className="text-orange-500 font-bold tracking-wider text-sm md:text-base uppercase pl-1">
+          <p className="text-slate-700 font-normal tracking-wider text-sm md:text-base uppercase italic pl-1">
             Property rental made easy
           </p>
         </div>

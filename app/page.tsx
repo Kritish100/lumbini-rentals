@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SlidersHorizontal, RefreshCw, Layers } from 'lucide-react'
 import HeroBanner from '@/components/HeroBanner'
@@ -11,14 +11,11 @@ import ListYourProperty from '@/components/ListYourProperty'
 import OurSocials from '@/components/OurSocials'
 import ClientTestimonials from '@/components/ClientTestimonials'
 import Footer from '@/components/Footer'
-
 import { SAMPLE_PROPERTIES } from './data'
 
-
-export default function PropertyDiscoveryApp() {
+function PropertyDiscoveryContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-
   const listPropertyRef = useRef<HTMLDivElement>(null)
   const ourSocialsRef = useRef<HTMLDivElement>(null)
   const clientTestimonialsRef = useRef<HTMLDivElement>(null)
@@ -102,6 +99,7 @@ export default function PropertyDiscoveryApp() {
     setCity('All')
     setPropertyCategory('Residential')
     setType('All')
+    
     // Directly re-apply the structural defaults
     let defaultProperties = SAMPLE_PROPERTIES.filter(p => p.category === 'Residential')
     setFilteredProperties(defaultProperties)
@@ -137,14 +135,14 @@ export default function PropertyDiscoveryApp() {
   return (
     <div className="min-h-screen bg-white text-slate-900">
       {/* Hero Banner */}
-      <HeroBanner
-        onListPropertyClick={handleListPropertyClick}
+      <HeroBanner 
+        onListPropertyClick={handleListPropertyClick} 
         onSocialsClick={handleHeroSocials}
         onTestimonialsClick={handleHeroTestimonials}
       />
 
       {/* Advanced Filters */}
-      <AdvancedFilters
+      <AdvancedFilters 
         onSortChange={handleSortChange}
         onCityChange={handleCityChange}
         onPropertyCategoryChange={handlePropertyCategoryChange}
@@ -154,21 +152,21 @@ export default function PropertyDiscoveryApp() {
 
       {/* Properties Feed Marketplace Container */}
       <section className="max-w-6xl mx-auto px-6 py-8 pb-20">
-        {/* BRAND NEW SUMMARY AREA: Placed elegantly at the top of the feed */}
+        {/* SUMMARY AREA */}
         <div className="mb-6 pb-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500 font-medium">
             <SlidersHorizontal size={16} className="text-slate-400 mr-1" />
             <span className="text-slate-700 font-semibold">Showing results for:</span>
-
+            
             {/* Category Tag (Deep Corporate Blue Frame) */}
             <span className="bg-slate-900 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
               {propertyCategory}
             </span>
 
-            {/* City Tag (Changes to Active Brand Orange when specified) */}
+            {/* City Tag */}
             <span className={`px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200 ${
-              city !== 'All'
-                ? 'bg-orange-50 text-orange-600 border border-orange-100 shadow-sm shadow-orange-500/5'
+              city !== 'All' 
+                ? 'bg-orange-50 text-orange-600 border border-orange-100 shadow-sm shadow-orange-500/5' 
                 : 'bg-slate-100 text-slate-700'
             }`}>
               {city === 'All' ? 'All Cities' : city}
@@ -176,8 +174,8 @@ export default function PropertyDiscoveryApp() {
 
             {/* Type Specific Tag */}
             <span className={`px-3 py-1 rounded-full text-xs font-semibold transition-all duration-200 ${
-              type !== 'All'
-                ? 'bg-orange-50 text-orange-600 border border-orange-100 shadow-sm shadow-orange-500/5'
+              type !== 'All' 
+                ? 'bg-orange-50 text-orange-600 border border-orange-100 shadow-sm shadow-orange-500/5' 
                 : 'bg-slate-100 text-slate-700'
             }`}>
               {type === 'All' ? `All types` : type}
@@ -196,7 +194,7 @@ export default function PropertyDiscoveryApp() {
               <span>{filteredProperties.length} Matches Found</span>
             </div>
             {isFiltered && (
-              <button
+              <button 
                 onClick={handleResetFilters}
                 className="cursor-pointer flex items-center gap-1.5 text-xs text-slate-500 hover:text-orange-600 font-bold tracking-wide uppercase transition-all duration-200 hover:bg-orange-50 px-2.5 py-1.5 rounded-lg border border-transparent hover:border-orange-100"
               >
@@ -212,9 +210,9 @@ export default function PropertyDiscoveryApp() {
           viewMode === 'grid' ? (
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {filteredProperties.map((property) => (
-                <PropertyCard
-                  key={property.id}
-                  property={property}
+                <PropertyCard 
+                  key={property.id} 
+                  property={property} 
                   onClick={() => handleOpenPropertyDetail(property.id)}
                   viewMode="grid"
                 />
@@ -223,9 +221,9 @@ export default function PropertyDiscoveryApp() {
           ) : (
             <div className="space-y-4">
               {filteredProperties.map((property) => (
-                <PropertyCard
-                  key={property.id}
-                  property={property}
+                <PropertyCard 
+                  key={property.id} 
+                  property={property} 
                   onClick={() => handleOpenPropertyDetail(property.id)}
                   viewMode="list"
                 />
@@ -237,7 +235,7 @@ export default function PropertyDiscoveryApp() {
             <p className="text-slate-500 text-lg font-medium">
               No properties found matching your filters.
             </p>
-            <button
+            <button 
               onClick={handleResetFilters}
               className="mt-3 cursor-pointer inline-flex items-center gap-2 bg-slate-900 text-white font-semibold px-4 py-2 rounded-xl text-sm shadow-md hover:bg-orange-500 transition-all duration-200"
             >
@@ -248,10 +246,10 @@ export default function PropertyDiscoveryApp() {
       </section>
 
       {/* Property Detail Sheet */}
-      <PropertyDetailSheet
-        property={activeProperty}
-        isOpen={activePropertyId !== null && activeProperty !== null}
-        onClose={handleClosePropertyDetail}
+      <PropertyDetailSheet 
+        property={activeProperty} 
+        isOpen={activePropertyId !== null && activeProperty !== null} 
+        onClose={handleClosePropertyDetail} 
       />
 
       {/* List Your Property Section */}
@@ -266,5 +264,20 @@ export default function PropertyDiscoveryApp() {
       {/* Footer */}
       <Footer />
     </div>
+  )
+}
+
+export default function PropertyDiscoveryApp() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white text-slate-900 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-2">
+          <RefreshCw className="animate-spin text-orange-500" size={32} />
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Loading Marketplace...</p>
+        </div>
+      </div>
+    }>
+      <PropertyDiscoveryContent />
+    </Suspense>
   )
 }

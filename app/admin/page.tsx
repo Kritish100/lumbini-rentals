@@ -77,7 +77,7 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState('All')
   const [filterArchived, setFilterArchived] = useState('Active Only')
-  const [filterPropertyType, setFilterPropertyType] = useState('All Types')
+  const [filterPropertyType, setFilterPropertyType] = useState('Single Room')
   const [filterLocation, setFilterLocation] = useState('All')
   const [sortOrder, setSortOrder] = useState('Newest')
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
@@ -473,7 +473,7 @@ export default function AdminDashboard() {
               <select value={filterPropertyType} onChange={e => setFilterPropertyType(e.target.value)} className="text-sm px-3 py-2.5 rounded-xl border border-slate-200 bg-white font-medium">
                 <option value="Single Room">Single Room</option>
                 <option value="2 BHK">2 BHK</option>
-                <option value="All Types">All Types</option>
+                <option value="Full House">Full House</option>
               </select>
 
               <select value={sortOrder} onChange={e => setSortOrder(e.target.value)} className="text-sm px-3 py-2.5 rounded-xl border border-slate-200 bg-white font-medium">
@@ -512,7 +512,9 @@ export default function AdminDashboard() {
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <h3 className="text-sm font-bold text-slate-800 truncate">{item.title}</h3>
+                          <span className="bg-slate-200 text-slate-600 text-[9px] px-1.5 py-0.5 rounded uppercase font-bold tracking-widest">{item.id}</span>
                           {item.isArchived && <span className="bg-slate-200 text-slate-600 text-[9px] px-1.5 py-0.5 rounded uppercase font-bold tracking-widest">Archived</span>}
+
                         </div>
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-slate-400 font-medium">
                           <span className="flex items-center gap-0.5 text-slate-600 font-semibold"><MapPin size={12} className="text-orange-500" /> {item.location}</span>

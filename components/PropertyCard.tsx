@@ -28,6 +28,7 @@ export interface Property {
   furnishingStatus: 'Furnished' | 'Semi-Furnished' | 'Unfurnished'
   description: string
   hasVideo: boolean
+  videoUrl?: string
   comments: number
   availabilityStatus?: 'Available Now' | 'Moving Out Soon' | 'Rented'
   idealFor?: string

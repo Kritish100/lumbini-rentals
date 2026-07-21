@@ -29,6 +29,7 @@ export const SAMPLE_PROPERTIES: Property[] = [
     furnishingStatus: 'Semi-Furnished',
     description: 'Spacious 2BHK flat with modern amenities, located in a prime area with easy access to markets and transportation. Recently renovated with premium finishings.',
     hasVideo: true,
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', // Sample video URL for demonstration
     comments: 12,
     availabilityStatus: 'Available Now', // Triggers solid Mint Green badge
   },
@@ -56,7 +57,8 @@ export const SAMPLE_PROPERTIES: Property[] = [
     bathroomType: 'Shared',
     furnishingStatus: 'Unfurnished',
     description: 'Cozy 1BHK flat perfect for couples or single professionals. Well-lit rooms with modern finishings and good cross-ventilation.',
-    hasVideo: false,
+    hasVideo: true,
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     comments: 8,
     availabilityStatus: 'Moving Out Soon', // Triggers "Moving Soon" amber/orange badge
   },
@@ -86,6 +88,7 @@ export const SAMPLE_PROPERTIES: Property[] = [
     furnishingStatus: 'Furnished',
     description: 'Affordable single room with attached bathroom and a small balcony. Ideal for students or job seekers. Building has good security.',
     hasVideo: true,
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     comments: 6,
     availabilityStatus: 'Available Now',
   },
@@ -115,6 +118,7 @@ export const SAMPLE_PROPERTIES: Property[] = [
     furnishingStatus: 'Furnished',
     description: 'Luxury 2BHK flat with premium finishings and excellent ventilation. Close to all amenities including restaurants, shopping mall, and public transport.',
     hasVideo: true,
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     comments: 18,
     availabilityStatus: 'Rented', // Triggers dark slate overlay state
   },
@@ -142,7 +146,8 @@ export const SAMPLE_PROPERTIES: Property[] = [
     bathroomType: 'Shared',
     furnishingStatus: 'Unfurnished',
     description: 'Prime commercial office space in busy market area. Perfect for retail or small business setup. High foot traffic area with excellent visibility.',
-    hasVideo: false,
+    hasVideo: true,
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', // Sample video URL for demonstration
     comments: 5,
     availabilityStatus: 'Available Now',
   },
@@ -171,6 +176,7 @@ export const SAMPLE_PROPERTIES: Property[] = [
     furnishingStatus: 'Semi-Furnished',
     description: 'Modern 1BHK with contemporary design. Located near college campus and shopping centers. Great locality with vibrant nightlife.',
     hasVideo: true,
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     comments: 10,
     availabilityStatus: 'Available Now',
   },
@@ -199,6 +205,7 @@ export const SAMPLE_PROPERTIES: Property[] = [
     furnishingStatus: 'Unfurnished',
     description: 'Modern commercial building with multiple floors. Ideal for corporate offices, educational institutions, or large retail operations. Near main commercial hub.',
     hasVideo: true,
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     comments: 14,
     availabilityStatus: 'Available Now',
   },

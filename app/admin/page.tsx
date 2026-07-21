@@ -291,7 +291,7 @@ export default function AdminDashboard() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-2">Options <span className="text-red-500">*</span></label>
+                    <label className="block text-xs font-bold text-slate-600 mb-2">Options <span className="text-red-500"></span></label>
                     <div className="flex gap-4">
                       <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={formData.isNegotiable} onChange={() => toggleIsNegotiable(!formData.isNegotiable)} className="accent-slate-900 w-4 h-4" /> Negotiable</label>
                     </div>

@@ -123,7 +123,7 @@ function PropertyDiscoveryContent() {
   }
 
   const handleClosePropertyDetail = () => {
-    router.push('/', { scroll: false })
+    router.replace('/', { scroll: false })
   }
 
   // IMPORTANT FIX: Scan master data arrays directly for dynamic URL shares!

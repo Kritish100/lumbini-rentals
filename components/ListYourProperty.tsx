@@ -3,7 +3,7 @@
 import { MessageCircle, Phone } from 'lucide-react'
 
 interface ListYourPropertyProps {
-  forwardedRef?: React.RefObject<HTMLDivElement>
+  forwardedRef?: React.RefObject<HTMLDivElement | null>
 }
 
 const PHONE_NUMBER = '+977 1234567890'

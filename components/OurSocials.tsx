@@ -4,7 +4,7 @@ import React from 'react'
 import { FacebookIcon, InstagramIcon, TikTokIcon } from './ui/icons'
 
 interface OurSocialsProps {
-  forwardedRef?: React.RefObject<HTMLDivElement>
+  forwardedRef?: React.RefObject<HTMLDivElement | null>
 }
 
 export default function OurSocials({ forwardedRef }: OurSocialsProps) {

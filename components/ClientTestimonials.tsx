@@ -14,7 +14,7 @@ interface Review {
 type SortOption = 'newest' | 'oldest' | 'highest' | 'lowest'
 
 interface ClientTestimonialsProps {
-  forwardedRef?: React.RefObject<HTMLDivElement>
+  forwardedRef?: React.RefObject<HTMLDivElement | null>
 }
 
 export default function ClientTestimonials({ forwardedRef }: ClientTestimonialsProps) {

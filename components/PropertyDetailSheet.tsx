@@ -158,13 +158,28 @@ export default function PropertyDetailSheet({
             {/* LEFT COLUMN: Media Showcase */}
             <div className="lg:col-span-2 space-y-4">
               <div className="relative w-full pt-[68%] bg-slate-50 rounded-xl overflow-hidden border border-slate-100 shadow-inner">
-                <Image 
-                  src={property.images[currentImageIndex] || property.images[0]} 
-                  alt={property.type} 
-                  fill 
-                  className="object-cover" 
-                  unoptimized 
-                />
+                {
+                  property.hasVideo ? (
+                    <div className="absolute inset-0 w-full h-full">
+                      <video
+                        src={property.videoUrl || "https://www.youtube.com/embed/zRzD3-a9_qc?list=RDzRzD3-a9_qc"}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <Image 
+                      src={property.images[currentImageIndex] || property.images[0]} 
+                      alt={property.type} 
+                      fill 
+                      className="object-cover" 
+                      unoptimized 
+                    />
+                  )
+                }
               </div>
               <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-none">
                 {property.images.map((image, index) => (

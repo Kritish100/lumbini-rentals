@@ -7,6 +7,7 @@ import {
   Layers, CheckCircle2, Search, Edit, Archive, ExternalLink, 
   Image as ImageIcon, Video, X, LayoutGrid, List as ListIcon
 } from 'lucide-react'
+import AdminLogin from './components/AdminLogin';
 
 // --- Types & Interfaces ---
 interface DynamicField {
@@ -69,10 +70,24 @@ const INITIAL_PROPERTIES: AdminProperty[] = [
   }
 ]
 
+const DEFAULT_FORM_STATE = {
+  title: '', googleMapUrl: '', location: '', subLocation: '',
+  longitude: '', latitude: '', categories: [] as string[],
+  status: 'Available' as string, description: '', price: '',
+  isArchived: false, isActiveOffer: false, offerDescription: '',
+  furnishingStatus: '', utilitiesIncluded: '',
+  specifications: [] as DynamicField[],
+  basicAmenities: '', dynamicAmenities: [] as DynamicField[],
+  isNegotiable: false
+}
+
 export default function AdminDashboard() {
   const [properties, setProperties] = useState<AdminProperty[]>(INITIAL_PROPERTIES)
   const [statusMessage, setStatusMessage] = useState('')
-  
+
+  // Authorization
+  const [isAuthorized, setIsAuthorized] = useState(false)
+
   // --- List View States ---
   const [searchTerm, setSearchTerm] = useState('')
   const [filterCategory, setFilterCategory] = useState('All')
@@ -86,18 +101,7 @@ export default function AdminDashboard() {
   const [activeStep, setActiveStep] = useState<1 | 2>(1)
   const [editingId, setEditingId] = useState<string | null>(null)
   
-  const defaultFormState = {
-    title: '', googleMapUrl: '', location: '', subLocation: '',
-    longitude: '', latitude: '', categories: [] as string[],
-    status: 'Available' as string, description: '', price: '',
-    isArchived: false, isActiveOffer: false, offerDescription: '',
-    furnishingStatus: '', utilitiesIncluded: '',
-    specifications: [] as DynamicField[],
-    basicAmenities: '', dynamicAmenities: [] as DynamicField[],
-    isNegotiable: false
-  }
-  
-  const [formData, setFormData] = useState(defaultFormState)
+  const [formData, setFormData] = useState(DEFAULT_FORM_STATE)
 
   // --- Form Handlers ---
   const handleInputChange = (field: keyof typeof formData, value: any) => {
@@ -168,7 +172,7 @@ export default function AdminDashboard() {
   }
 
   const resetForm = () => {
-    setFormData(defaultFormState)
+    setFormData(DEFAULT_FORM_STATE)
     setEditingId(null)
     setActiveStep(1)
   }
@@ -218,6 +222,14 @@ export default function AdminDashboard() {
         return 0
       })
   }, [properties, searchTerm, filterCategory, filterLocation, filterArchived, sortOrder])
+  
+
+  // ===================================
+  // AUTHORIZATION CHECK
+  // ===================================
+  if(!isAuthorized) 
+    return <AdminLogin onSuccess={() => setIsAuthorized(true)} />
+
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20">

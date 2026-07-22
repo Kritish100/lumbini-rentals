@@ -2,15 +2,15 @@
 
 import { verifySecretKey } from "@/app/admin/actions";
 import { useState } from "react";
+import { useRouter } from 'next/navigation';
 
-interface AdminLoginProps {
-    onSuccess: () => void;
-}
 
-export default function AdminLogin({ onSuccess }: AdminLoginProps) {
+export default function AdminLoginPage() {
   const [inputKey, setInputKey] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -19,7 +19,9 @@ export default function AdminLogin({ onSuccess }: AdminLoginProps) {
 
         try {
             const isValid = await verifySecretKey(inputKey);
-            if(isValid) return onSuccess();
+            if(isValid) {
+                router.push('/admin'); 
+            }
             else setError("Invalid secret key. Please try again.");
         }
         catch (err) {

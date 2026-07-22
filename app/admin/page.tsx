@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import { 
   Plus, Trash2, Building2, MapPin, DollarSign, ArrowLeft, 
   Layers, CheckCircle2, Search, Edit, Archive, ExternalLink, 
   Image as ImageIcon, Video, X, LayoutGrid, List as ListIcon
 } from 'lucide-react'
-import AdminLogin from './components/AdminLogin';
+import { useRouter } from 'next/navigation'
+import { clearAuthorizationCookie } from './actions'
 
 // --- Types & Interfaces ---
 interface DynamicField {
@@ -82,11 +83,12 @@ const DEFAULT_FORM_STATE = {
 }
 
 export default function AdminDashboard() {
+
+  const router = useRouter();
+
   const [properties, setProperties] = useState<AdminProperty[]>(INITIAL_PROPERTIES)
   const [statusMessage, setStatusMessage] = useState('')
 
-  // Authorization
-  const [isAuthorized, setIsAuthorized] = useState(false)
 
   // --- List View States ---
   const [searchTerm, setSearchTerm] = useState('')
@@ -102,6 +104,19 @@ export default function AdminDashboard() {
   const [editingId, setEditingId] = useState<string | null>(null)
   
   const [formData, setFormData] = useState(DEFAULT_FORM_STATE)
+
+  // handle log out
+  const handleLogOut = async () => {
+    try {
+      // 1. Tell the server to drop the httpOnly session cookie
+      await clearAuthorizationCookie();
+      
+      // 2. Hand off control to the browser router to push the path change
+      window.location.href = '/admin/login'
+    } catch (error) {
+      console.error('Failed to log out smoothly:', error);
+    }
+  }
 
   // --- Form Handlers ---
   const handleInputChange = (field: keyof typeof formData, value: any) => {
@@ -227,9 +242,15 @@ export default function AdminDashboard() {
   // ===================================
   // AUTHORIZATION CHECK
   // ===================================
-  if(!isAuthorized) 
-    return <AdminLogin onSuccess={() => setIsAuthorized(true)} />
 
+
+  // Fetching Every time there is some changes in this component is not a good idea. Please change it.
+  // let fetchedProperties = await fetch(
+  //         'https://api.lumbinirentals.kritishbhattarai.com.np/api/properties/admin', 
+  //         { headers: { "x-api-key": "Lumbini...1" } }
+  //     )
+  // fetchedProperties = await fetchedProperties.json()
+  // console.log(fetchedProperties)
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pb-20">
@@ -243,6 +264,7 @@ export default function AdminDashboard() {
               <p className="text-xs text-slate-400 font-medium tracking-wider uppercase">Central Console</p>
             </div>
           </div>
+          <button className='btn btn-sm' onClick={handleLogOut}>Logout</button>
           <Link href="/" className="flex items-center gap-1.5 text-xs font-bold uppercase bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl border border-slate-700 transition-all text-slate-200">
             <ArrowLeft size={14} /> Public Site
           </Link>

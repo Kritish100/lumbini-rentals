@@ -27,9 +27,6 @@ export default function AdminLoginPage() {
         catch (err) {
             setError("Connection Error. Please try again.");
         }
-        finally {
-            setIsLoading(false);
-        }
     }
 
 

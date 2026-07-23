@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { Image as ImageIcon, Video, X } from 'lucide-react'
+import { Image as ImageIcon, Video, X } from "lucide-react";
 
 interface AssetUploaderProps {
   propertyId: string;
@@ -8,10 +8,13 @@ interface AssetUploaderProps {
   onClose: () => void;
 }
 
-export default function AssetUploader({ propertyId, propertyTitle, onClose }: AssetUploaderProps) {
+export default function AssetUploader({
+  propertyId,
+  propertyTitle,
+  onClose,
+}: AssetUploaderProps) {
   return (
     <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm animate-in fade-in zoom-in-95 duration-200">
-      
       {/* Header and Close Action */}
       <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
         <div>
@@ -20,11 +23,12 @@ export default function AssetUploader({ propertyId, propertyTitle, onClose }: As
             Manage Media
           </h2>
           <p className="text-xs text-slate-500 font-medium mt-1 truncate max-w-[250px]">
-            Attaching to: <span className="text-slate-800 font-bold">{propertyTitle}</span>
+            Attaching to:{" "}
+            <span className="text-slate-800 font-bold">{propertyTitle}</span>
           </p>
         </div>
-        <button 
-          onClick={onClose} 
+        <button
+          onClick={onClose}
           className="p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 rounded-full transition-colors"
           title="Close Uploader"
         >
@@ -39,18 +43,25 @@ export default function AssetUploader({ propertyId, propertyTitle, onClose }: As
             <ImageIcon size={32} />
             <Video size={32} />
           </div>
-          <p className="text-sm font-bold text-slate-700">Drag & drop files to Cloudflare R2</p>
-          <p className="text-xs text-slate-400 mt-1">Supports MP4, JPG, PNG up to 50MB</p>
+          <p className="text-sm font-bold text-slate-700">
+            Drag & drop files to Cloudflare R2
+          </p>
+          <p className="text-xs text-slate-400 mt-1">
+            Supports MP4, JPG, PNG up to 50MB
+          </p>
           <button className="mt-4 bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-orange-500 transition-colors shadow-sm">
             Browse Files
           </button>
         </div>
 
         <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-xs font-medium text-blue-800 leading-relaxed">
-          <strong className="block text-sm mb-1 text-blue-900">Upload Rule:</strong>
-          If you upload an MP4 video, it will automatically be set as the premium autoplaying hover preview on the property card.
+          <strong className="block text-sm mb-1 text-blue-900">
+            Upload Rule:
+          </strong>
+          If you upload an MP4 video, it will automatically be set as the
+          premium autoplaying hover preview on the property card.
         </div>
       </div>
     </div>
-  )
+  );
 }

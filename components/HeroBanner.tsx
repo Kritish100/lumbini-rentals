@@ -1,7 +1,6 @@
 'use client'
 
-import { Share2, Users, Upload } from 'lucide-react'
-
+import { Users, Upload, Contact } from 'lucide-react'
 interface HeroBannerProps {
   onListPropertyClick: () => void
   onSocialsClick: () => void
@@ -77,8 +76,8 @@ export default function HeroBanner({
             onClick={onSocialsClick} 
             className="cursor-pointer flex items-center gap-2 px-7 py-3.5 bg-slate-100 text-slate-700 font-semibold rounded-lg border border-slate-200 shadow-sm transition-all duration-300 hover:bg-slate-200/80 active:scale-95"
           >
-            <Share2 size={20} />
-            Our Socials
+            <Contact size={20} />
+            Contact us
           </button>
 
           {/* Testimonials Action - Styled to blend smoothly on light backgrounds */}

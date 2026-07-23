@@ -1,12 +1,12 @@
-'use client'
+"use client";
 
-import { Grid3x3, List } from 'lucide-react'
-import { useState } from 'react'
+import { Grid3x3, List } from "lucide-react";
+import { useState } from "react";
 
 interface FilterPillProps {
-  onLocationChange?: (location: string) => void
-  onTypeChange?: (type: string) => void
-  onViewChange?: (view: 'grid' | 'list') => void
+  onLocationChange?: (location: string) => void;
+  onTypeChange?: (type: string) => void;
+  onViewChange?: (view: "grid" | "list") => void;
 }
 
 export default function FilterPill({
@@ -14,28 +14,28 @@ export default function FilterPill({
   onTypeChange,
   onViewChange,
 }: FilterPillProps) {
-  const [location, setLocation] = useState('All')
-  const [type, setType] = useState('All')
-  const [view, setView] = useState<'grid' | 'list'>('grid')
+  const [location, setLocation] = useState("All");
+  const [type, setType] = useState("All");
+  const [view, setView] = useState<"grid" | "list">("grid");
 
-  const locations = ['All', 'Butwal', 'Bhairahawa', 'Yogikuti']
-  const types = ['All', 'Single Room', '1BHK', '2BHK', 'Commercial']
+  const locations = ["All", "Butwal", "Bhairahawa", "Yogikuti"];
+  const types = ["All", "Single Room", "1BHK", "2BHK", "Commercial"];
 
   const handleLocationChange = (loc: string) => {
-    setLocation(loc)
-    onLocationChange?.(loc)
-  }
+    setLocation(loc);
+    onLocationChange?.(loc);
+  };
 
   const handleTypeChange = (t: string) => {
-    setType(t)
-    onTypeChange?.(t)
-  }
+    setType(t);
+    onTypeChange?.(t);
+  };
 
   const handleViewChange = () => {
-    const newView = view === 'grid' ? 'list' : 'grid'
-    setView(newView)
-    onViewChange?.(newView)
-  }
+    const newView = view === "grid" ? "list" : "grid";
+    setView(newView);
+    onViewChange?.(newView);
+  };
 
   return (
     <div className="sticky top-[64px] z-30 w-full bg-white border-b border-slate-200">
@@ -72,13 +72,9 @@ export default function FilterPill({
           className="ml-auto flex items-center justify-center w-10 h-10 text-slate-900 border border-slate-200 rounded-full hover:bg-slate-50 transition-colors"
           aria-label="Toggle view"
         >
-          {view === 'grid' ? (
-            <Grid3x3 size={20} />
-          ) : (
-            <List size={20} />
-          )}
+          {view === "grid" ? <Grid3x3 size={20} /> : <List size={20} />}
         </button>
       </div>
     </div>
-  )
+  );
 }

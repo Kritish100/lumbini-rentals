@@ -1,90 +1,63 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Heart, MessageCircle, Car, MapPin, Layers, Tag } from 'lucide-react'
-import Image from 'next/image'
-
-export interface Property {
-  id: string
-  uniqueId: string
-  isFeatured: boolean
-  price: number
-  discountPrice?: number // Ensures the 1st Month Offer triggers smoothly
-  type: string
-  category: 'Residential' | 'Commercial'
-  location: string
-  area: string
-  images: string[]
-  beds: number
-  baths: number
-  hasParking: boolean
-  parkingType?: 'Bikes Only' | 'Bikes & Cars'
-  floorLevel?: string
-  squareFootage?: number
-  waterType: string
-  waterIncluded: boolean
-  electricityMeterType: 'Individual' | 'Shared' | 'Separate' | 'Sub-Meter'
-  bathroomType: 'Attached' | 'Shared'
-  furnishingStatus: 'Furnished' | 'Semi-Furnished' | 'Unfurnished'
-  description: string
-  hasVideo: boolean
-  videoUrl?: string
-  comments: number
-  availabilityStatus?: 'Available Now' | 'Moving Out Soon' | 'Rented'
-  idealFor?: string
-}
+import { Eye, ImageIcon, MapPin, Tag } from "lucide-react";
+import Image from "next/image";
+import { PublicProperty } from "@/app/types";
 
 interface PropertyCardProps {
-  property: Property
-  onClick: () => void
-  viewMode?: 'grid' | 'list'
+  property: PublicProperty;
+  onClick: () => void;
+  viewMode?: "grid" | "list";
 }
 
 export default function PropertyCard({
   property,
   onClick,
-  viewMode = 'grid',
+  viewMode = "grid",
 }: PropertyCardProps) {
-  const [isLiked, setIsLiked] = useState(false)
-  const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 50) + 10)
-
-  if (!property) return null
-
-  const handleLikeClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setIsLiked(!isLiked)
-    setLikeCount(isLiked ? likeCount - 1 : likeCount + 1)
-  }
+  if (!property) return null;
 
   const getStatusBadgeConfig = () => {
-    const status = property.availabilityStatus || 'Available Now'
+    const status = property.status || "available";
     switch (status) {
-      case 'Rented':
-        return { text: 'Rented', classes: 'bg-slate-900/80 backdrop-blur-xs text-slate-200' }
-      case 'Moving Out Soon':
-        return { text: 'Moving Out Soon', classes: 'bg-amber-600 text-white shadow-xs' }
-      case 'Available Now':
+      case "booked":
+        return { text: "Booked", classes: "bg-amber-600 text-white shadow-xs" };
+      case "on hold":
+        return {
+          text: "On Hold",
+          classes: "bg-amber-600 text-white shadow-xs",
+        };
+      case "available":
       default:
-        return { text: 'Available Now', classes: 'bg-emerald-600 text-white' }
+        return { text: "Available", classes: "bg-emerald-600 text-white" };
     }
-  }
+  };
 
-  const badge = getStatusBadgeConfig()
-  const parkingLabel = !property.hasParking ? 'No Parking' : property.parkingType === 'Bikes Only' ? 'Bikes Only' : 'Bikes & Cars'
-  const mainImage = property.images && property.images.length > 0 ? property.images[0] : '/placeholder-property.jpg'
-  const hasDiscount = property.discountPrice !== undefined && property.discountPrice > 0
-  const displayPrice = hasDiscount ? property.discountPrice! : property.price
+  const badge = getStatusBadgeConfig();
+  const parkingLabel =
+    property.specifications?.parking || property.specifications?.Parking
+      ? "Parking"
+      : "No Parking";
+  const mainImage = "/placeholder-property.jpg";
+  const isNegotiable = property.isNegotiable;
+  const displayPrice = property.price;
 
   // LIST VIEW
-  if (viewMode === 'list') {
+  if (viewMode === "list") {
     return (
-      <div 
-        onClick={onClick} 
+      <div
+        onClick={onClick}
         className="relative flex gap-4 bg-white rounded-xl border border-slate-100 hover:border-orange-200 hover:shadow-md transition-all duration-300 p-4 cursor-pointer group"
       >
         {/* Image Frame Container (Clean, no absolute overlays inside anymore) */}
         <div className="relative w-48 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-slate-50">
-          <Image src={mainImage} alt={property.type} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+          <Image
+            src={mainImage}
+            alt={property.type}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            unoptimized
+          />
           <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-slate-900/10 via-transparent to-transparent pointer-events-none z-5" />
         </div>
 
@@ -96,11 +69,15 @@ export default function PropertyCard({
                 <span className="font-heading font-extrabold text-2xl text-slate-900">
                   Rs {displayPrice.toLocaleString()}
                 </span>
-                <span className="text-xs text-slate-400 font-medium">/month</span>
+                <span className="text-xs text-slate-400 font-medium">
+                  /month
+                </span>
               </div>
-              
+
               {/* Status Badge moved cleanly outside of the image layout frame */}
-              <div className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide shadow-xs flex-shrink-0 ${badge.classes}`}>
+              <div
+                className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide shadow-xs flex-shrink-0 ${badge.classes}`}
+              >
                 {badge.text}
               </div>
             </div>
@@ -109,77 +86,54 @@ export default function PropertyCard({
               {property.type}
             </h3>
             <p className="flex items-center gap-1 text-sm text-slate-500 mb-2">
-              <MapPin size={14} className="text-orange-500 flex-shrink-0" /> {property.location}
+              <MapPin size={14} className="text-orange-500 flex-shrink-0" />{" "}
+              {property.location}, {property.subLocation || ""}
             </p>
 
             {/* Combined Badges row includes structural active offer badge */}
             <div className="flex flex-wrap gap-1.5 items-center">
-              {hasDiscount && (
+              {property.isOfferActive && (
                 <span className="text-xs font-extrabold bg-orange-50 text-orange-700 border border-orange-100 px-2 py-0.5 rounded flex items-center gap-1 shadow-2xs">
                   <Tag size={11} className="fill-current" /> Active Offer
                 </span>
               )}
-              {property.category === 'Residential' && (
-                <>
-                  {property.floorLevel && (
-                    <span className="text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded flex items-center gap-1">
-                      <Layers size={11} className="text-slate-400" /> {property.floorLevel}
-                    </span>
-                  )}
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${ property.hasParking ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-500' }`}>
-                    <Car size={12} /> {parkingLabel}
-                  </span>
-                </>
-              )}
-              {property.category === 'Commercial' && property.squareFootage && (
-                <span className="text-xs font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded">
-                  {property.squareFootage.toLocaleString()} sq.ft.
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* List Footer Data */}
-          <div className="flex items-center gap-4 text-sm text-slate-500 pt-2 border-t border-slate-50">
-            {property.category === 'Residential' ? (
-              <div className="flex gap-2.5 text-xs font-medium text-slate-400">
-                <span>{property.beds} Beds</span>
-                <span>•</span>
-                <span>{property.baths} Baths</span>
-              </div>
-            ) : (
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600">Commercial Space</span>
-            )}
-            <div className="ml-auto flex items-center gap-3.5">
-              <button onClick={handleLikeClick} className="flex items-center gap-1 transition-all duration-200 hover:scale-110 cursor-pointer text-slate-400 hover:text-red-500">
-                <Heart size={16} className={isLiked ? 'fill-red-500 text-red-500' : 'currentColor'} />
-                <span className="text-xs font-medium text-slate-500">{likeCount}</span>
-              </button>
-              <span className="flex items-center gap-1 text-slate-400">
-                <MessageCircle size={16} />
-                <span className="text-xs font-medium text-slate-500">{property.comments}</span>
+              <span
+                className={`text-xs font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${property.specifications?.parking ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-500"}`}
+              >
+                {parkingLabel}
+              </span>
+              <span className="text-xs font-extrabold bg-orange-50 text-orange-700 border border-orange-100 px-2 py-0.5 rounded flex items-center gap-1 shadow-2xs">
+                <Tag size={11} className="fill-current" /> Active Offer
               </span>
             </div>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   // GRID VIEW (Default Layout)
   return (
-    <div 
-      onClick={onClick} 
+    <div
+      onClick={onClick}
       className="bg-white rounded-xl overflow-hidden border border-slate-100 hover:border-orange-200 hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col h-full"
     >
       {/* Media Window Box (Now just contains status tag on upper-right layout alignment safely) */}
       <div className="relative w-full pt-[70%] bg-slate-50 overflow-hidden flex-shrink-0">
-        <Image src={mainImage} alt={property.type} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+        <Image
+          src={mainImage}
+          alt={property.type}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-500"
+          unoptimized
+        />
         <div className="absolute top-0 left-0 right-0 h-10 bg-gradient-to-b from-slate-900/30 via-transparent to-transparent pointer-events-none z-5" />
-        
+
         {/* Only Availability Status remains, shifted securely to Top Right */}
         <div className="absolute top-3 right-3 z-10">
-          <div className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm ${badge.classes}`}>
+          <div
+            className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider shadow-sm ${badge.classes}`}
+          >
             {badge.text}
           </div>
         </div>
@@ -203,61 +157,50 @@ export default function PropertyCard({
           </h3>
           <p className="flex items-center gap-1 text-sm text-slate-500 mb-3">
             <MapPin size={14} className="text-orange-500 flex-shrink-0" />
-            <span className="line-clamp-1">{property.location}</span>
+            <span className="line-clamp-1">
+              {property.location}, {property.subLocation || ""}
+            </span>
           </p>
 
           {/* Descriptive Badges Stack Layout - Active Offer sits here now */}
           <div className="mb-4 flex flex-wrap gap-1.5 items-center">
-            {hasDiscount && (
+            {property.isOfferActive && (
               <span className="text-[11px] font-extrabold bg-orange-50 text-orange-700 border border-orange-100 px-2 py-0.5 rounded flex items-center gap-1 shadow-2xs">
-                <Tag size={11} className="fill-current" /> Active Offer
+                <Tag size={11} className="fill-current" /> Cashback Offer
               </span>
             )}
-            {property.category === 'Residential' && (
-              <>
-                {property.floorLevel && (
-                  <span className="text-[11px] font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded flex items-center gap-1">
-                    <Layers size={11} className="text-slate-400" /> {property.floorLevel}
-                  </span>
-                )}
-                <span className={`text-[11px] font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${ property.hasParking ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-500' }`}>
-                  <Car size={12} /> {parkingLabel}
-                </span>
-              </>
-            )}
-            {property.category === 'Commercial' && property.squareFootage && (
-              <span className="text-[11px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded">
-                {property.squareFootage.toLocaleString()} sq.ft.
-              </span>
-            )}
+            <span
+              className={`text-[11px] font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${property.specifications?.parking ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-500"}`}
+            >
+              {parkingLabel}
+            </span>
+            <span className="text-[11px] font-semibold bg-orange-50 text-orange-700 border border-orange-100 px-2 py-0.5 rounded flex items-center gap-1 shadow-2xs">
+              Negotiable
+            </span>
           </div>
         </div>
 
         {/* Footer Metrics Panel */}
-        <div className="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
-          <div>
-            {property.category === 'Residential' ? (
-              <div className="flex gap-2 text-slate-400 font-medium">
-                <span>{property.beds} Beds</span>
-                <span>•</span>
-                <span>{property.baths} Baths</span>
-              </div>
-            ) : (
-              <span className="font-bold uppercase tracking-wider text-[10px] text-emerald-600">Commercial</span>
-            )}
-          </div>
+        <div className="flex gap-3 items-center justify-start text-xs text-slate-500 pt-3 border-t border-slate-100">
           <div className="flex items-center gap-3">
-            <button onClick={handleLikeClick} className="cursor-pointer flex items-center gap-1 transition-all duration-200 hover:scale-110 text-slate-400 hover:text-red-500" >
-              <Heart size={17} className={isLiked ? 'fill-red-500 text-red-500' : 'currentColor'} />
-              <span className="text-xs font-medium text-slate-500">{likeCount}</span>
-            </button>
             <span className="flex items-center gap-1 text-slate-400">
-              <MessageCircle size={16} />
-              <span className="text-xs font-medium text-slate-500">{property.comments}</span>
+              <Eye size={14} />{" "}
+              <span className="text-xs font-medium text-slate-500">2</span>
             </span>
           </div>
+
+          {!!property.assets.length && (
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1 text-slate-400">
+                <ImageIcon size={14} />
+                <span className="text-xs font-medium text-slate-500">
+                  {property.assets.length}
+                </span>
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>
-  )
+  );
 }

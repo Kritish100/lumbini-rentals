@@ -1,37 +1,51 @@
-'use client'
+"use client";
 
-import { ChevronLeft, ChevronRight, X, Bed, Droplets, Car, Waves, MessageCircle } from 'lucide-react'
-import Image from 'next/image'
-import { useState } from 'react'
-import type { Property } from './PropertyCard'
+import { PublicProperty } from "@/app/types";
+import {
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Bed,
+  Droplets,
+  Car,
+  Waves,
+  MessageCircle,
+} from "lucide-react";
+import Image from "next/image";
+import { useState } from "react";
 
 interface BottomSheetProps {
-  property: Property | null
-  isOpen: boolean
-  onClose?: () => void
+  property: PublicProperty | null;
+  isOpen: boolean;
+  onClose?: () => void;
 }
 
-export default function BottomSheet({ property, isOpen, onClose }: BottomSheetProps) {
-  const [carouselIndex, setCarouselIndex] = useState(0)
+export default function BottomSheet({
+  property,
+  isOpen,
+  onClose,
+}: BottomSheetProps) {
+  const [carouselIndex, setCarouselIndex] = useState(0);
 
-  if (!property || !isOpen) return null
+  if (!property || !isOpen) return null;
 
-  const images = property.images.length > 0 ? property.images : ['/placeholder.jpg']
-  const currentImage = images[carouselIndex]
+  const images =
+    property.assets.length > 0 ? property.assets : ["/placeholder.jpg"];
+  const currentImage = images[carouselIndex];
 
   const handlePrevious = () => {
-    setCarouselIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1))
-  }
+    setCarouselIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
 
   const handleNext = () => {
-    setCarouselIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
-  }
+    setCarouselIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
 
   const handleWhatsApp = () => {
-    const message = `Hi, I'm interested in the ${property.type} at ${property.location}. Please share more details.`
-    const encodedMessage = encodeURIComponent(message)
-    window.open(`https://wa.me/?text=${encodedMessage}`, '_blank')
-  }
+    const message = `Hi, I'm interested in the ${property.type} at ${property.location}. Please share more details.`;
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://wa.me/?text=${encodedMessage}`, "_blank");
+  };
 
   return (
     <>
@@ -102,41 +116,56 @@ export default function BottomSheet({ property, isOpen, onClose }: BottomSheetPr
             {/* Specs Grid */}
             <div className="grid grid-cols-2 gap-4">
               {/* Beds */}
-              <div className="flex flex-col items-center justify-center p-4 border border-slate-200 rounded-xl">
+              {/* <div className="flex flex-col items-center justify-center p-4 border border-slate-200 rounded-xl">
                 <Bed className="text-slate-400 mb-2" size={24} />
-                <div className="text-lg font-semibold text-slate-900">{property.beds}</div>
-                <div className="text-xs text-slate-500">Bed{property.beds !== 1 ? 's' : ''}</div>
-              </div>
+                <div className="text-lg font-semibold text-slate-900">
+                  {property.beds}
+                </div>
+                <div className="text-xs text-slate-500">
+                  Bed{property.beds !== 1 ? "s" : ""}
+                </div>
+              </div> */}
 
               {/* Baths */}
-              <div className="flex flex-col items-center justify-center p-4 border border-slate-200 rounded-xl">
+              {/* <div className="flex flex-col items-center justify-center p-4 border border-slate-200 rounded-xl">
                 <Droplets className="text-slate-400 mb-2" size={24} />
-                <div className="text-lg font-semibold text-slate-900">{property.baths}</div>
-                <div className="text-xs text-slate-500">Bath{property.baths !== 1 ? 's' : ''}</div>
-              </div>
+                <div className="text-lg font-semibold text-slate-900">
+                  {property.baths}
+                </div>
+                <div className="text-xs text-slate-500">
+                  Bath{property.baths !== 1 ? "s" : ""}
+                </div>
+              </div> */}
 
               {/* Parking */}
               <div className="flex flex-col items-center justify-center p-4 border border-slate-200 rounded-xl">
                 <Car className="text-slate-400 mb-2" size={24} />
                 <div className="text-lg font-semibold text-slate-900">
-                  {property.hasParking ? 'Yes' : 'No'}
+                  {property.specifications?.parking ||
+                  property.specifications?.Parking
+                    ? "Yes"
+                    : "No"}
                 </div>
                 <div className="text-xs text-slate-500">Parking</div>
               </div>
 
               {/* Water */}
-              <div className="flex flex-col items-center justify-center p-4 border border-slate-200 rounded-xl">
+              {/* <div className="flex flex-col items-center justify-center p-4 border border-slate-200 rounded-xl">
                 <Waves className="text-slate-400 mb-2" size={24} />
-                <div className="text-lg font-semibold text-slate-900">{property.waterType}</div>
+                <div className="text-lg font-semibold text-slate-900">
+                  {property.waterType}
+                </div>
                 <div className="text-xs text-slate-500">Water</div>
-              </div>
+              </div> */}
             </div>
 
             {/* Description */}
             {property.description && (
               <div className="pt-4 border-t border-slate-200">
                 <h3 className="font-semibold text-slate-900 mb-2">About</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">{property.description}</p>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {property.description}
+                </p>
               </div>
             )}
 
@@ -155,5 +184,5 @@ export default function BottomSheet({ property, isOpen, onClose }: BottomSheetPr
         </div>
       </div>
     </>
-  )
+  );
 }

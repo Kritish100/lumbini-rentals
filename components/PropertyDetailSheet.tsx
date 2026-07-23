@@ -12,6 +12,9 @@ import {
   Layers,
   Gift,
   Send,
+  Store,
+  Building2,
+  House,
 } from "lucide-react";
 import Image from "next/image";
 import { PublicProperty } from "@/app/types";
@@ -72,53 +75,34 @@ export default function PropertyDetailSheet({
 
   // Accessibility: Allow hitting Escape Key to clear overlay route states
   useEffect(() => {
+    // Stop Background Scroll
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    // Close the modal on 'Esc'
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) {
         onClose();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
   }, [isOpen, onClose]);
 
   if (!isOpen || !property) return null;
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
-  };
+  const handleLike = () => {};
 
-  const handleCommentLike = (commentId: string) => {
-    setComments(
-      comments.map((comment) => {
-        if (comment.id === commentId) {
-          return {
-            ...comment,
-            isLiked: !comment.isLiked,
-            likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1,
-          };
-        }
-        return comment;
-      }),
-    );
-  };
+  const handleCommentLike = (commentId: string) => {};
 
-  const handleAddComment = () => {
-    if (newComment.trim()) {
-      setComments([
-        {
-          id: Date.now().toString(),
-          author: "You",
-          text: newComment,
-          timestamp: "Just now",
-          likes: 0,
-          isLiked: false,
-        },
-        ...comments,
-      ]);
-      setNewComment("");
-    }
-  };
+  const handleAddComment = () => {};
 
   const getParkingLabel = () => {
     if (!property.specifications?.parking && !property.specifications?.Parking)
@@ -149,7 +133,7 @@ export default function PropertyDetailSheet({
         {/* Sticky Header */}
         <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between z-10">
           <h2 className="font-heading text-2xl font-bold text-slate-900">
-            {property.type}
+            {property.title}
           </h2>
           <button
             onClick={onClose}
@@ -212,12 +196,14 @@ export default function PropertyDetailSheet({
                         /month
                       </span>
                     </p>
-                    <span className="inline-flex items-center bg-slate-100 text-slate-700 font-bold text-[10px] px-2 py-0.5 rounded-md border border-slate-200">
-                      Negotiable
-                    </span>
                     {property.isNegotiable && (
-                      <span className="inline-flex items-center bg-orange-500 text-white font-bold tracking-wide text-[10px] px-2 py-0.5 rounded-md border border-orange-500">
+                      <span className="inline-flex items-center bg-emerald-500 text-white font-bold tracking-wide text-[10px] px-2 py-0.5 rounded-md border border-emerald-500">
                         Negotiable
+                      </span>
+                    )}
+                    {property.isOfferActive && (
+                      <span className="inline-flex items-center bg-orange-500 text-white font-bold tracking-wide text-[10px] px-2 py-0.5 rounded-md border border-orange-500">
+                        Active Offer
                       </span>
                     )}
                   </div>
@@ -241,7 +227,7 @@ export default function PropertyDetailSheet({
                     <Tag size={16} className="text-slate-400 flex-shrink-0" />
                     <p className="text-slate-600 font-semibold">
                       Ref ID:{" "}
-                      <span className="font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded text-xs ml-1">
+                      <span className=" font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded text-xs ml-1">
                         {property.id}
                       </span>
                     </p>
@@ -255,6 +241,16 @@ export default function PropertyDetailSheet({
                       Status:{" "}
                       <span className="font-bold text-emerald-600 ml-1">
                         {property.status || "Available"}
+                      </span>
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3 text-sm">
+                    <House size={16} className="text-slate-400 flex-shrink-0" />
+                    <p className="text-slate-600 font-semibold">
+                      Type:{" "}
+                      <span className="font-bold text-slate-400 ml-1">
+                        {property.type}
                       </span>
                     </p>
                   </div>
@@ -291,8 +287,7 @@ export default function PropertyDetailSheet({
                   Active Offer
                 </h4>
                 <p className="text-sm font-medium text-slate-700 mt-0.5">
-                  An active <b>10% move-in discount</b> is applied to your first
-                  month's rent for this property.
+                  {property.offerDescription}
                 </p>
               </div>
             </div>
@@ -348,7 +343,7 @@ export default function PropertyDetailSheet({
           </div>
 
           {/* Social Interactions Bar */}
-          <div className="pt-4 flex items-center justify-between border-t border-slate-100">
+          {/* <div className="pt-4 flex items-center justify-between border-t border-slate-100">
             <button
               onClick={handleLike}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-100 hover:bg-slate-50 transition-all group duration-200"
@@ -361,10 +356,10 @@ export default function PropertyDetailSheet({
                 {likeCount} Likes
               </span>
             </button>
-          </div>
+          </div> */}
 
           {/* Flat Verified Reviews Stream */}
-          <div className="pt-2">
+          {/* <div className="pt-2">
             <h3 className="font-heading text-lg font-bold text-slate-900 mb-4">
               {" "}
               Comments ({comments.length}){" "}
@@ -429,7 +424,7 @@ export default function PropertyDetailSheet({
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

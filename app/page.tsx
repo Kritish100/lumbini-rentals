@@ -26,9 +26,6 @@ function PropertyDiscoveryContent() {
 
   console.log("Properties", properties);
 
-  // Sync state cleanly from Next.js routing parameters
-  const activePropertyId = searchParams.get("view");
-
   const [filteredProperties, setFilteredProperties] = useState<
     PublicProperty[]
   >([]);
@@ -38,9 +35,15 @@ function PropertyDiscoveryContent() {
   const [filterRender, setFilterRender] = useState(0); // trigger the re render of filters component
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
+  const [activePropertyId, setActivePropertyId] = useState<string | null>(null);
+
   useEffect(() => {
     setFilteredProperties(properties);
   }, [properties]);
+
+  useEffect(() => {
+    setActivePropertyId(searchParams.get("view") || null);
+  }, []);
 
   const handleViewModeChange = (mode: "grid" | "list") => {
     setViewMode(mode);
@@ -67,18 +70,24 @@ function PropertyDiscoveryContent() {
 
   // Router Interaction Triggers: Update address query parameter state
   const handleOpenPropertyDetail = (id: string) => {
-    router.push(`?view=${id}`, { scroll: false });
+    setActivePropertyId(id);
+    window.history.pushState(null, "", `?view=${id}`);
   };
 
   const handleClosePropertyDetail = () => {
-    router.replace("/", { scroll: false });
+    setActivePropertyId(null);
+    window.history.pushState(null, "", window.location.pathname);
   };
-
-  // IMPORTANT FIX: Scan master data arrays directly for dynamic URL shares!
-  const activeProperty = null;
 
   // Check if any filters are customized away from the baseline state
   const isFiltered = filteredProperties.length !== properties.length;
+
+  console.log(activePropertyId);
+
+  console.log(
+    "find",
+    properties.find((i) => String(i.id) === String(activePropertyId)),
+  );
 
   return (
     <div className="min-h-screen bg-white text-slate-900">
@@ -180,8 +189,11 @@ function PropertyDiscoveryContent() {
 
       {/* Property Detail Sheet */}
       <PropertyDetailSheet
-        property={activeProperty}
-        isOpen={activePropertyId !== null && activeProperty !== null}
+        property={
+          properties.find((i) => String(i.id) === String(activePropertyId)) ||
+          null
+        }
+        isOpen={activePropertyId !== null}
         onClose={handleClosePropertyDetail}
       />
 

@@ -3,14 +3,12 @@ import { useEffect } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { Plus, RotateCcw, X } from "lucide-react";
 import type { AdminProperty, DynamicField } from "@/app/admin/types";
-
-const SPEC_KEY_PRESETS = [
-  "Floor",
-  "Facing",
-  "Furnishing",
-  "Parking",
-  "Bathroom Type",
-];
+import {
+  LOCATIONS,
+  PROPERTY_STATUS,
+  PROPERTY_TYPES,
+  SPECIFICATIONS_PRESETS,
+} from "@/app/data";
 
 // Shape of the form's internal values — price/longitude/latitude are strings
 // in the form (since inputs are strings) and get converted on submit.
@@ -27,7 +25,7 @@ const DEFAULT_FORM_VALUES = {
   longitude: "",
   latitude: "",
   category: [] as string[],
-  status: "Available" as string,
+  status: "available" as string,
   description: "",
   price: 0,
   isArchived: false,
@@ -124,6 +122,7 @@ export default function PropertyForm({
       );
     } finally {
       refetchProperties();
+      reset(DEFAULT_FORM_VALUES);
     }
   };
 
@@ -209,9 +208,11 @@ export default function PropertyForm({
               {...register("type")}
               className="w-full text-sm px-3 py-2.5 rounded-xl border border-slate-200 bg-white"
             >
-              <option value="1 BHK">1 BHK</option>
-              <option value="Full House">Full House</option>
-              <option value="Single Room">Single Room</option>
+              {PROPERTY_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -224,9 +225,11 @@ export default function PropertyForm({
                 {...register("status")}
                 className="w-full text-sm px-3 py-2.5 rounded-xl border border-slate-200 bg-white"
               >
-                <option value="Available">Available</option>
-                <option value="On Hold">On Hold</option>
-                <option value="Booked">Booked</option>
+                {PROPERTY_STATUS.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -266,12 +269,18 @@ export default function PropertyForm({
               Location Data
             </label>
             <div className="grid grid-cols-2 gap-3 mb-3">
-              <input
-                type="text"
-                placeholder="Location"
-                {...register("location")}
-                className="w-full text-sm px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-slate-900 bg-slate-50/50"
-              />
+              <div>
+                <select
+                  {...register("location")}
+                  className="w-full text-sm px-3 py-2.5 rounded-xl border border-slate-200 bg-white"
+                >
+                  {LOCATIONS.map((loc) => (
+                    <option key={loc} value={loc}>
+                      {loc}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <input
                 type="text"
                 placeholder="Sub Location"
@@ -356,7 +365,7 @@ export default function PropertyForm({
                   <option value="" disabled>
                     Select key...
                   </option>
-                  {SPEC_KEY_PRESETS.map((preset) => (
+                  {SPECIFICATIONS_PRESETS.map((preset) => (
                     <option key={preset} value={preset}>
                       {preset}
                     </option>
@@ -425,7 +434,7 @@ export default function PropertyForm({
           disabled={isSubmitting}
           className="w-full mt-4 bg-slate-900 text-white font-bold text-sm py-3.5 rounded-xl shadow-md hover:bg-orange-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? "Saving..." : "Save Property Details"}
+          {isSubmitting ? "Saving..." : "Save Property"}
         </button>
       </form>
     </div>

@@ -7,6 +7,7 @@ export interface DynamicField {
 
 export interface AdminProperty {
   id: string;
+  views: number | string;
   title: string;
   price: number;
   type: string;

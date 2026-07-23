@@ -98,12 +98,9 @@ export default function PropertyCard({
                 </span>
               )}
               <span
-                className={`text-xs font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${property.specifications?.parking ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-500"}`}
+                className={`text-xs font-semibold px-2 py-0.5 rounded flex items-center gap-1 bg-slate-100 text-slate-500`}
               >
                 {parkingLabel}
-              </span>
-              <span className="text-xs font-extrabold bg-orange-50 text-orange-700 border border-orange-100 px-2 py-0.5 rounded flex items-center gap-1 shadow-2xs">
-                <Tag size={11} className="fill-current" /> Active Offer
               </span>
             </div>
           </div>
@@ -170,11 +167,11 @@ export default function PropertyCard({
               </span>
             )}
             <span
-              className={`text-[11px] font-semibold px-2 py-0.5 rounded flex items-center gap-1 ${property.specifications?.parking ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-500"}`}
+              className={`text-[11px] font-semibold px-2 py-0.5 rounded flex items-center gap-1 bg-slate-100 text-slate-500`}
             >
               {parkingLabel}
             </span>
-            <span className="text-[11px] font-semibold bg-orange-50 text-orange-700 border border-orange-100 px-2 py-0.5 rounded flex items-center gap-1 shadow-2xs">
+            <span className="text-[11px] font-semibold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded flex items-center gap-1">
               Negotiable
             </span>
           </div>

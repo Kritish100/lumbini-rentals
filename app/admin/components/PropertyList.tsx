@@ -15,8 +15,10 @@ import {
   CalendarDays,
   Maximize2,
   RotateCcw,
+  Eye,
 } from "lucide-react";
 import type { AdminProperty } from "@/app/admin/types";
+import { CATEGORY, LOCATIONS, PROPERTY_TYPES, SORT_OPTIONS } from "@/app/data";
 
 interface PropertyListProps {
   properties: AdminProperty[];
@@ -42,17 +44,16 @@ interface PropertyFilters {
 }
 
 const DEFAULT_FILTERS: PropertyFilters = {
-  category: "All",
-  location: "All",
-  propertyType: "All",
+  category: "all",
+  location: "all",
+  propertyType: "all",
   archived: false,
   sortOrder: "Newest",
 };
 
-const CATEGORY_OPTIONS = ["All", "Residential", "Commercial"];
-const LOCATION_OPTIONS = ["All", "Butwal", "Bhairahawa"];
-const PROPERTY_TYPE_OPTIONS = ["All", "1 BHK", "Full House"];
-const SORT_OPTIONS = ["Newest", "Oldest"];
+const CATEGORY_OPTIONS = ["all", ...CATEGORY];
+const LOCATION_OPTIONS = ["all", ...LOCATIONS];
+const PROPERTY_TYPE_OPTIONS = ["all", ...PROPERTY_TYPES];
 
 export default function PropertyList({
   properties,
@@ -133,17 +134,17 @@ export default function PropertyList({
         .includes(debouncedSearchTerm.trim().toLowerCase()),
     ); // Search Term
     newList = newList.filter((prop) => {
-      if (filters.category === "All") return prop;
+      if (filters.category === "all") return prop;
       else return prop.category.includes(filters.category);
     }); // Category
 
     newList = newList.filter((prop) => {
-      if (filters.location === "All") return prop;
+      if (filters.location === "all") return prop;
       else return prop.location === filters.location;
     }); // Location
 
     newList = newList.filter((prop) => {
-      if (filters.propertyType === "All") return prop;
+      if (filters.propertyType === "all") return prop;
       else return prop.type === filters.propertyType;
     }); // Property Type
 
@@ -196,7 +197,7 @@ export default function PropertyList({
           >
             {CATEGORY_OPTIONS.map((opt) => (
               <option key={opt} value={opt}>
-                {opt === "All" ? "All Categories" : opt}
+                {opt === "all" ? "all categories" : opt}
               </option>
             ))}
           </select>
@@ -208,7 +209,7 @@ export default function PropertyList({
           >
             {LOCATION_OPTIONS.map((opt) => (
               <option key={opt} value={opt}>
-                {opt === "All" ? "All Locations" : opt}
+                {opt === "all" ? "all locations" : opt}
               </option>
             ))}
           </select>
@@ -220,7 +221,7 @@ export default function PropertyList({
           >
             {PROPERTY_TYPE_OPTIONS.map((opt) => (
               <option key={opt} value={opt}>
-                {opt === "All" ? "All Types" : opt}
+                {opt === "all" ? "all types" : opt}
               </option>
             ))}
           </select>
@@ -352,26 +353,41 @@ export default function PropertyList({
                       </span>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-slate-400 font-medium">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-xs text-slate-400 font-medium">
                       <span className="flex items-center gap-0.5 text-slate-600 font-semibold">
                         <MapPin size={12} className="text-orange-500" />{" "}
                         {item.location}, {item.subLocation}
                       </span>
-                      <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">
-                        {Array.isArray(item.category)
-                          ? item.category?.join(", ")
-                          : null}
-                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-xs text-slate-400 font-medium">
+                      {item.category?.map((cat) => (
+                        <span
+                          key={cat}
+                          className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold"
+                        >
+                          {cat}
+                        </span>
+                      ))}
                       <span
                         className={`px-2 py-0.5 rounded text-[10px] font-bold ${item.status === "Available" ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-amber-50 text-amber-600 border border-amber-100"}`}
                       >
                         {item.status}
                       </span>
+                    </div>
+
+                    <div className="mt-1 text-xs text-slate-400 font-medium">
                       {createdLabel && (
                         <span className="flex items-center gap-1 text-slate-400 font-medium">
                           <CalendarDays size={12} /> {createdLabel}
                         </span>
                       )}
+                    </div>
+
+                    <div className="mt-1 text-xs text-slate-400 font-semibold">
+                      <span className="flex items-center gap-1 text-slate-700">
+                        <Eye size={14} /> {item.views || "0"}
+                      </span>
                     </div>
 
                     <div className="mt-1 text-sm font-extrabold text-slate-900 flex items-center">

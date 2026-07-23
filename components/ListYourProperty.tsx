@@ -1,26 +1,30 @@
-'use client'
+"use client";
 
-import { MessageCircle, Phone } from 'lucide-react'
+import { MessageCircle, Phone } from "lucide-react";
 
 interface ListYourPropertyProps {
-  forwardedRef?: React.RefObject<HTMLDivElement | null>
+  forwardedRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-const PHONE_NUMBER = '+977 1234567890'
+const PHONE_NUMBER = "+977 1234567890";
 
-export default function ListYourProperty({ forwardedRef }: ListYourPropertyProps) {
+export default function ListYourProperty({
+  forwardedRef,
+}: ListYourPropertyProps) {
   const handleWhatsApp = () => {
-    const message = encodeURIComponent('Hi! I want to list my property on Lumbini Rentals.')
-    window.open(`https://wa.me/1234567890?text=${message}`, '_blank')
-  }
+    const message = encodeURIComponent(
+      "Hi! I want to list my property on Lumbini Rentals.",
+    );
+    window.open(`https://wa.me/1234567890?text=${message}`, "_blank");
+  };
 
   const handlePhone = () => {
-    window.open(`tel:${PHONE_NUMBER.replace(/\s/g, '')}`)
-  }
+    window.open(`tel:${PHONE_NUMBER.replace(/\s/g, "")}`);
+  };
 
   return (
-    <div 
-      ref={forwardedRef} 
+    <div
+      ref={forwardedRef}
       className="bg-gradient-to-br from-slate-50 to-blue-50/50 py-16 px-6 border-t border-slate-200"
     >
       <div className="max-w-6xl mx-auto">
@@ -30,7 +34,8 @@ export default function ListYourProperty({ forwardedRef }: ListYourPropertyProps
             List Your Property
           </h2>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Reach thousands of potential tenants. Become a Lumbini Rentals partner and grow your rental business with us.
+            Reach thousands of potential tenants. Become a Lumbini Rentals
+            partner and grow your rental business with us.
           </p>
         </div>
 
@@ -56,5 +61,5 @@ export default function ListYourProperty({ forwardedRef }: ListYourPropertyProps
         </div>
       </div>
     </div>
-  )
+  );
 }

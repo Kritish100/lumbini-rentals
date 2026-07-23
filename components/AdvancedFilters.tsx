@@ -1,66 +1,73 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Grid3x3, List } from 'lucide-react'
+import { useEffect, useState } from "react";
+import { Grid3x3, List } from "lucide-react";
+import { LOCATIONS, PROPERTY_TYPES } from "@/app/data";
+import { PublicProperty } from "@/app/types";
 
 interface AdvancedFiltersProps {
-  onSortChange: (sort: 'price-low' | 'price-high' | 'newest') => void
-  onCityChange: (city: string) => void
-  onPropertyCategoryChange: (category: 'Residential' | 'Commercial') => void
-  onTypeChange: (type: string) => void
-  onViewModeChange: (mode: 'grid' | 'list') => void
+  renderKey: number;
+  properties: PublicProperty[];
+  updateFilteredProperties: (items: PublicProperty[]) => void; // Parent State
+  setSelectedLocation: (value: string) => void; // Parent State
+  onViewModeChange: (mode: "grid" | "list") => void;
 }
 
+interface PropertyFilters {
+  category: string;
+  propertyType: string;
+  location: string;
+  sortOrder: string;
+}
+
+const DEFAULT_FILTERS: PropertyFilters = {
+  category: "residential",
+  propertyType: "all",
+  location: "all",
+  sortOrder: "newest",
+};
+
 export default function AdvancedFilters({
-  onSortChange,
-  onCityChange,
-  onPropertyCategoryChange,
-  onTypeChange,
+  renderKey,
+  properties,
+  updateFilteredProperties,
+  setSelectedLocation,
   onViewModeChange,
 }: AdvancedFiltersProps) {
-  const [sort, setSort] = useState<'price-low' | 'price-high' | 'newest'>('newest')
-  const [city, setCity] = useState('All')
-  const [propertyCategory, setPropertyCategory] = useState<'Residential' | 'Commercial'>('Residential')
-  const [type, setType] = useState('All')
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [filters, setFilters] = useState<PropertyFilters>(DEFAULT_FILTERS);
 
-  const residentialTypes = ['All', 'Single Room', "Rooms and Kitchen", '1BHK Flat', '2BHK Flat', '3BHK Flat', 'Full House']
-  const commercialTypes = ['All', 'Office Spaces', 'Commercial Flats', 'Commercial Building', 'Truss Spaces', 'Land for Lease']
+  const updateFilter = <K extends keyof PropertyFilters>(
+    key: K,
+    value: PropertyFilters[K],
+  ) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
 
-  const currentTypeOptions = propertyCategory === 'Residential' ? residentialTypes : commercialTypes
+  useEffect(() => {
+    let newList = [...properties];
 
-  const handleSortChange = (newSort: typeof sort) => {
-    setSort(newSort)
-    onSortChange(newSort)
-  }
+    newList = newList.filter((prop) => {
+      if (filters.category === "all") return prop;
+      else return prop.category.includes(filters.category);
+    }); // Category
 
-  const handleCityChange = (newCity: string) => {
-    setCity(newCity)
-    onCityChange(newCity)
-  }
+    updateFilteredProperties(newList); // Parent Component
+    setSelectedLocation(filters.location); // Parent Component
+  }, [filters, properties]);
 
-  const handlePropertyCategoryChange = (category: 'Residential' | 'Commercial') => {
-    setPropertyCategory(category)
-    setType('All')
-    onPropertyCategoryChange(category)
-    onTypeChange('All')
-  }
-
-  const handleTypeChange = (newType: string) => {
-    setType(newType)
-    onTypeChange(newType)
-  }
-
-  const handleViewModeChange = (mode: 'grid' | 'list') => {
-    setViewMode(mode)
-    onViewModeChange(mode)
-  }
+  const handleViewModeChange = (mode: "grid" | "list") => {
+    setViewMode(mode);
+    onViewModeChange(mode);
+  };
 
   return (
-    <div className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
+    <div
+      key={renderKey}
+      className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm"
+    >
       <div className="max-w-6xl mx-auto px-6 py-5">
         <div className="flex flex-wrap gap-4 items-center">
-          
           {/* Property Category Toggle */}
           <div className="flex flex-col gap-1">
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -68,21 +75,21 @@ export default function AdvancedFilters({
             </label>
             <div className="flex gap-1 border border-slate-200 rounded-xl p-1 bg-slate-50">
               <button
-                onClick={() => handlePropertyCategoryChange('Residential')}
+                onClick={() => updateFilter("category", "residential")}
                 className={`cursor-pointer px-4 py-1.5 text-sm rounded-lg font-semibold transition-all duration-200 ${
-                  propertyCategory === 'Residential'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
+                  filters.category === "residential"
+                    ? "bg-slate-900 text-white shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
                 }`}
               >
                 Residential
               </button>
               <button
-                onClick={() => handlePropertyCategoryChange('Commercial')}
+                onClick={() => updateFilter("category", "commercial")}
                 className={`cursor-pointer px-4 py-1.5 text-sm rounded-lg font-semibold transition-all duration-200 ${
-                  propertyCategory === 'Commercial'
-                    ? 'bg-slate-900 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
+                  filters.category === "commercial"
+                    ? "bg-slate-900 text-white shadow-sm"
+                    : "text-slate-600 hover:text-slate-900"
                 }`}
               >
                 Commercial
@@ -90,19 +97,22 @@ export default function AdvancedFilters({
             </div>
           </div>
 
-          {/* Sort Dropdown */}
+          {/* Property Type Dropdown */}
           <div className="flex flex-col gap-1">
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Sort By
+              Property Type
             </label>
             <select
-              value={sort}
-              onChange={(e) => handleSortChange(e.target.value as 'price-low' | 'price-high' | 'newest')}
+              value={filters.propertyType}
+              onChange={(e) => updateFilter("propertyType", e.target.value)}
               className="px-4 py-2 border border-slate-200 bg-slate-50 rounded-xl text-sm font-semibold text-slate-800 transition-all focus:outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-900/10"
             >
-              <option value="newest">Newest First</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
+              <option value="all">all types</option>
+              {PROPERTY_TYPES.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -112,32 +122,35 @@ export default function AdvancedFilters({
               City Location
             </label>
             <select
-              value={city}
-              onChange={(e) => handleCityChange(e.target.value)}
+              value={filters.location}
+              onChange={(e) => updateFilter("location", e.target.value)}
               className="px-4 py-2 border border-slate-200 bg-slate-50 rounded-xl text-sm font-semibold text-slate-800 transition-all focus:outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-900/10"
             >
-              <option value="All">All Cities</option>
-              <option value="Bhairahawa">Bhairahawa</option>
-              <option value="Butwal">Butwal</option>
-              <option value="Yogikuti">Yogikuti</option>
+              <option value="all">all cities</option>
+              {LOCATIONS.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
             </select>
           </div>
 
-          {/* Property Type Dropdown */}
+          {/* Sort Dropdown */}
           <div className="flex flex-col gap-1">
             <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Property Type
+              Sort By
             </label>
             <select
-              value={type}
-              onChange={(e) => handleTypeChange(e.target.value)}
+              value={filters.sortOrder}
+              onChange={(e) =>
+                updateFilter("sortOrder", e.target.value as string)
+              }
               className="px-4 py-2 border border-slate-200 bg-slate-50 rounded-xl text-sm font-semibold text-slate-800 transition-all focus:outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-900/10"
             >
-              {currentTypeOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
+              <option value="newest">newest first</option>
+              <option value="oldest">oldest first</option>
+              <option value="price-low">price: low to high</option>
+              <option value="price-high">price: high to low</option>
             </select>
           </div>
 
@@ -151,22 +164,22 @@ export default function AdvancedFilters({
             </label>
             <div className="flex gap-1 border border-slate-200 rounded-xl p-1 bg-slate-50">
               <button
-                onClick={() => handleViewModeChange('grid')}
+                onClick={() => handleViewModeChange("grid")}
                 className={`cursor-pointer p-2 rounded-lg transition-all duration-200 ${
-                  viewMode === 'grid'
-                    ? 'bg-orange-500 text-white shadow-md shadow-orange-500/10'
-                    : 'text-slate-500 hover:text-slate-900'
+                  viewMode === "grid"
+                    ? "bg-orange-500 text-white shadow-md shadow-orange-500/10"
+                    : "text-slate-500 hover:text-slate-900"
                 }`}
                 title="Grid View"
               >
                 <Grid3x3 size={18} />
               </button>
               <button
-                onClick={() => handleViewModeChange('list')}
+                onClick={() => handleViewModeChange("list")}
                 className={`cursor-pointer p-2 rounded-lg transition-all duration-200 ${
-                  viewMode === 'list'
-                    ? 'bg-orange-500 text-white shadow-md shadow-orange-500/10'
-                    : 'text-slate-500 hover:text-slate-900'
+                  viewMode === "list"
+                    ? "bg-orange-500 text-white shadow-md shadow-orange-500/10"
+                    : "text-slate-500 hover:text-slate-900"
                 }`}
                 title="List View"
               >
@@ -174,9 +187,8 @@ export default function AdvancedFilters({
               </button>
             </div>
           </div>
-
         </div>
       </div>
     </div>
-  )
+  );
 }

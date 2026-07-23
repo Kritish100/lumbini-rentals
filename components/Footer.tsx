@@ -1,14 +1,14 @@
-'use client'
+"use client";
 
-import React from 'react'
+import React from "react";
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear()
+  const currentYear = new Date().getFullYear();
 
   const handleScrollToTop = (e: React.MouseEvent) => {
-    e.preventDefault()
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <footer className="bg-slate-900 text-slate-400 border-t border-slate-800">
@@ -19,7 +19,8 @@ export default function Footer() {
             Looking for an ideal rental property?
           </h3>
           <p className="text-sm text-slate-400 mt-1">
-            Browse our verified rooms, flats, and commercial spaces across Bhairahawa & Butwal.
+            Browse our verified rooms, flats, and commercial spaces across
+            Bhairahawa & Butwal.
           </p>
         </div>
         <button
@@ -43,18 +44,22 @@ export default function Footer() {
 
         {/* Essential Navigation and Trust Links */}
         <div className="flex items-center gap-6">
-          <a 
-            href="#listings" 
+          <a
+            href="#listings"
             onClick={handleScrollToTop}
             className="hover:text-white transition-colors duration-200"
           >
             Back to Top
           </a>
           <span className="text-slate-800">•</span>
-          <span className="text-slate-500 cursor-not-allowed">Privacy Policy</span>
-          <span className="text-slate-500 cursor-not-allowed">Terms of Service</span>
+          <span className="text-slate-500 cursor-not-allowed">
+            Privacy Policy
+          </span>
+          <span className="text-slate-500 cursor-not-allowed">
+            Terms of Service
+          </span>
         </div>
       </div>
     </footer>
-  )
+  );
 }

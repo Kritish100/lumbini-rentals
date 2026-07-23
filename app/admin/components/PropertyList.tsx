@@ -3,8 +3,10 @@ import { useState, useMemo, useEffect } from 'react'
 import Link from 'next/link'
 import {
   MapPin, DollarSign, Search, Edit, ExternalLink, Trash2,
-  Layers, LayoutGrid, List as ListIcon, PanelLeftClose, PanelLeftOpen,
-  ImagePlus, CalendarDays
+  Layers, LayoutGrid, List as ListIcon,
+  ImagePlus, CalendarDays,
+  Maximize2,
+  RotateCcw
 } from 'lucide-react'
 import type { AdminProperty } from '@/app/admin/types'
 
@@ -12,48 +14,66 @@ interface PropertyListProps {
   properties: AdminProperty[]
   isPropertiesLoading: boolean
   refetchProperties: () => void
+  deleteProperties: (ids: string[]) => void
   toggleNegotiable: (id: string, value: boolean) => void
   toggleArchive: (id: string, value: boolean) => void
   
   isSidebarOpen: boolean
-  resetPage: () =>  void
+  editingId: string | null
+  openAssets: () => void
   setEditingId: (id: string) => void
   toggleSidebar: () => void
 }
+
+interface PropertyFilters {
+  category: string
+  location: string
+  propertyType: string
+  archived: boolean
+  sortOrder: 'Newest' | 'Oldest'
+}
+
+const DEFAULT_FILTERS: PropertyFilters = {
+  category: 'All', location: 'All',
+  propertyType: 'All', archived: false, sortOrder: 'Newest'
+}
+
+const CATEGORY_OPTIONS = ['All', 'Residential', 'Commercial']
+const LOCATION_OPTIONS = ['All', 'Butwal', 'Bhairahawa']
+const PROPERTY_TYPE_OPTIONS = ['All', '1 BHK', 'Full House']
+const SORT_OPTIONS = ["Newest", "Oldest"]
 
 export default function PropertyList({
   properties,
   isPropertiesLoading,
   isSidebarOpen,
+  editingId,
   refetchProperties,
+  deleteProperties,
   toggleArchive,
   toggleNegotiable,
   setEditingId,
-  resetPage,
+  openAssets,
   toggleSidebar
 }: PropertyListProps) {
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterCategory, setFilterCategory] = useState('All')
-  const [filterArchived, setFilterArchived] = useState('Active Only')
-  const [filterLocation, setFilterLocation] = useState('All')
-  const [sortOrder, setSortOrder] = useState('Newest')
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
+  const [filters, setFilters] = useState(DEFAULT_FILTERS)
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list')
 
-  // Tracks which card should be highlighted after Edit/Media click
-  const [highlightedId, setHighlightedId] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!highlightedId) return
-    const timer = setTimeout(() => setHighlightedId(null), 2500)
-    return () => clearTimeout(timer)
-  }, [highlightedId])
+  const updateFilter = <K extends keyof PropertyFilters>
+                                  (key: K, value: PropertyFilters[K]) => 
+                                          setFilters(prev => ({...prev, [key]:value}))
 
   const handleEditClick = (item: AdminProperty) => {
-    setHighlightedId(item.id)
+    setEditingId(item.id)
+    if(!isSidebarOpen) toggleSidebar() 
   }
 
   const handleManageAssetsClick = (id: string) => {
-    setHighlightedId(id)
+    setEditingId(id)
+    if(!isSidebarOpen) toggleSidebar() 
+    openAssets()
   }
 
   const onToggleNegotiable = (id: string, value: boolean) => {
@@ -64,7 +84,12 @@ export default function PropertyList({
     toggleArchive(id, value)
   }
 
-  const onDelete = (id: string) => {}
+  const onDelete = async (id: string, title:string) => {
+    const isConfirmed = window.confirm( `Permanently delete this property ! \nID: ${id} \nTitle: ${title}`)
+    if (!isConfirmed) return
+    await deleteProperties([id])
+    refetchProperties()
+  }
 
   const formatDate = (value?: string) => {
     if (!value) return null
@@ -73,63 +98,152 @@ export default function PropertyList({
     return d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
   }
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm)
+    }, 300)
+
+    return () => clearTimeout(handler)
+  }, [searchTerm])
+
   const filteredAndSortedProperties = useMemo(() => {
-    return properties
+    let newList = [...properties]
+
+    newList = newList.filter(prop => prop.title.toLowerCase().includes(debouncedSearchTerm.trim().toLowerCase())) // Search Term
+    newList = newList.filter(prop => {
+      if(filters.category === "All") return prop
+      else return prop.category.includes(filters.category)
+    }) // Category
+
+    newList = newList.filter(prop => {
+      if(filters.location === "All") return prop
+      else return prop.location === filters.location
+    }) // Location
+
+    newList = newList.filter(prop => {
+      if(filters.propertyType === "All") return prop
+      else return prop.type === filters.propertyType
+    }) // Property Type
+
+    // newList = filters.sortOrder === "Newest" 
+    //               ? newList.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    //               : newList.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) // Sort by created at
+
+    newList = newList.filter(prop => Boolean(prop.isArchived) === filters.archived) // Archived
+    
+    return newList
       
-  }, [properties, searchTerm, filterCategory, filterLocation, filterArchived, sortOrder])
+  }, [properties, debouncedSearchTerm, filters])
 
 
   return (
     <div className="space-y-4">
       {/* Control Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row flex-wrap items-center gap-3">
+      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col lg:flex-row flex-wrap items-center gap-3">
+        {/* Group 1: Sidebar toggle */}
         <button
           onClick={toggleSidebar}
-          className="p-2.5 bg-slate-900 text-white rounded-xl hover:bg-orange-500 transition-colors shadow-sm"
+          className="p-2.5 bg-slate-900 text-white rounded-xl hover:bg-orange-500 transition-colors shadow-sm flex-shrink-0"
           title={isSidebarOpen ? "Collapse Input Form" : "Expand Input Form"}
         >
-          {isSidebarOpen ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
+          <Maximize2 size={16} />
         </button>
 
-        <div className="relative flex-1 min-w-[200px]">
+        <div className="h-8 w-px bg-slate-200 hidden lg:block" />
+
+        {/* Group 2: Search */}
+        <div className="relative flex-1 min-w-[200px] order-1 lg:order-none">
           <Search size={16} className="absolute left-3 top-3 text-slate-400" />
           <input
             type="text"
-            placeholder="Search title or ID..."
+            placeholder="Search title..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             className="w-full text-sm pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-slate-900"
           />
         </div>
 
-        <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="text-sm px-3 py-2.5 rounded-xl border border-slate-200 bg-white font-medium">
-          <option value="All">All Categories</option>
-          <option value="Residential">Residential</option>
-          <option value="Commercial">Commercial</option>
-        </select>
+        <div className="h-8 w-px bg-slate-200 hidden lg:block" />
 
-        <select value={filterLocation} onChange={e => setFilterLocation(e.target.value)} className="text-sm px-3 py-2.5 rounded-xl border border-slate-200 bg-white font-medium">
-          <option value="All">All Locations</option>
-          <option value="Butwal">Butwal</option>
-          <option value="Bhairahawa">Bhairahawa</option>
-        </select>
+        {/* Group 3: Filters — visually clustered on a soft background */}
+        <div className="flex items-center flex-wrap gap-2 bg-slate-50/70 border border-slate-100 rounded-xl p-1.5">
+          <select
+            value={filters.category}
+            onChange={e => updateFilter('category', e.target.value)}
+            className="text-sm px-3 py-2 rounded-lg border border-slate-200 bg-white font-medium"
+          >
+            {CATEGORY_OPTIONS.map(opt => (
+              <option key={opt} value={opt}>{opt === "All" ? "All Categories" : opt}</option>
+            ))}
+          </select>
 
-        <select value={filterArchived} onChange={e => setFilterArchived(e.target.value)} className="text-sm px-3 py-2.5 rounded-xl border border-slate-200 bg-white font-medium">
-          <option value="Active Only">Active Only</option>
-          <option value="Archived">Archived</option>
-          <option value="All">Show All</option>
-        </select>
+          <select
+            value={filters.location}
+            onChange={e => updateFilter('location', e.target.value)}
+            className="text-sm px-3 py-2 rounded-lg border border-slate-200 bg-white font-medium"
+          >
+            {LOCATION_OPTIONS.map(opt => (
+              <option key={opt} value={opt}>{opt === "All" ? "All Locations" : opt}</option>
+            ))}
+          </select>
 
-        <select value={sortOrder} onChange={e => setSortOrder(e.target.value)} className="text-sm px-3 py-2.5 rounded-xl border border-slate-200 bg-white font-medium">
-          <option value="Newest">Newest First</option>
-          <option value="Oldest">Oldest First</option>
-        </select>
+          <select
+            value={filters.propertyType}
+            onChange={e => updateFilter('propertyType', e.target.value)}
+            className="text-sm px-3 py-2 rounded-lg border border-slate-200 bg-white font-medium"
+          >
+            {PROPERTY_TYPE_OPTIONS.map(opt => (
+              <option key={opt} value={opt}>{opt === "All" ? "All Types" : opt}</option>
+            ))}
+          </select>
 
-        {/* View Toggle */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-xl">
-          <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-lg ${viewMode === 'list' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}><ListIcon size={16} /></button>
-          <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-lg ${viewMode === 'grid' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}><LayoutGrid size={16} /></button>
+          <label className="flex items-center gap-1.5 text-sm font-medium text-slate-600 px-3 py-2 rounded-lg border border-slate-200 bg-white cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={filters.archived}
+              onChange={(e) => updateFilter("archived", e.target.checked)}
+              className="w-4 h-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400 cursor-pointer"
+            />
+            Archived
+          </label>
         </div>
+
+        {/* Spacer pushes the remaining controls to the far right on larger screens */}
+        <div className="hidden lg:block lg:ml-auto" />
+
+        <div className="h-8 w-px bg-slate-200 hidden lg:block" />
+
+        {/* Group 4: Sort + View + Reset */}
+        <div className="flex items-center gap-2">
+          <select
+            value={filters.sortOrder}
+            onChange={e => {
+              const value = e.target.value as PropertyFilters["sortOrder"]
+              updateFilter('sortOrder', value)
+            }}
+            className="text-sm px-3 py-2.5 rounded-xl border border-slate-200 bg-white font-medium"
+          >
+            {SORT_OPTIONS.map(opt => (<option key={opt} value={opt}>{opt}</option>))}
+          </select>
+
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl">
+            <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-lg ${viewMode === 'list' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}>
+              <ListIcon size={16} />
+            </button>
+            <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-lg ${viewMode === 'grid' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}>
+              <LayoutGrid size={16} />
+            </button>
+          </div>
+
+          <button
+            onClick={() => setFilters(DEFAULT_FILTERS)}
+            className="flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-red-500 uppercase px-2 py-2 rounded-lg hover:bg-red-50 transition-colors"
+          >
+            <RotateCcw size={14} />
+            Reset
+          </button>
+        </div>
+
       </div>
 
       {/* List Header */}
@@ -138,9 +252,20 @@ export default function PropertyList({
           <Layers size={16} className="text-slate-400" />
           <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500">Live Active Catalog</h2>
         </div>
+        
+        <div className='flex items-center'>
+          <button 
+            type="button" 
+            title="refetch properties"
+            onClick={() => refetchProperties()} 
+            className="flex items-center text-xs mr-3 font-bold text-slate-400 hover:text-slate-700 uppercase"
+          >
+            <RotateCcw size={14} className='mr-1' /> Reload
+        </button>
         <span className="text-xs bg-slate-200 font-bold px-2.5 py-1 text-slate-600 rounded-md">
           {filteredAndSortedProperties.length} Results
         </span>
+        </div>
       </div>
 
       {isPropertiesLoading && (
@@ -151,7 +276,7 @@ export default function PropertyList({
       {!isPropertiesLoading && filteredAndSortedProperties.length > 0 && (
         <div className={viewMode === 'grid' ? 'grid grid-cols-2 gap-4' : 'space-y-3'}>
           {filteredAndSortedProperties.map((item) => {
-            const isHighlighted = highlightedId === item.id
+            const isHighlighted = editingId === item.id
             const createdLabel = formatDate((item as any).createdAt)
 
             return (
@@ -231,18 +356,17 @@ export default function PropertyList({
                   </button>
 
                   <div className="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
-
-                  <Link href={`/?view=${item.id}`} target="_blank" className="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors" title="View on Public Site">
-                    <ExternalLink size={16} />
-                  </Link>
-
                   <button onClick={() => handleEditClick(item)} className="p-2 rounded-lg text-slate-400 hover:text-orange-600 hover:bg-orange-50 transition-colors" title="Edit Listing">
                     <Edit size={16} />
                   </button>
 
-                  <button onClick={() => onDelete(item.id)} className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Delete Property">
+                  <button onClick={() => onDelete(item.id, item.title)} className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Delete Property">
                     <Trash2 size={16} />
                   </button>
+
+                  <Link href={`/?view=${item.id}`} target="_blank" className="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors" title="View on Public Site">
+                    <ExternalLink size={16} />
+                  </Link>
                 </div>
               </div>
             )

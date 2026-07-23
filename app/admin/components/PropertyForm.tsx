@@ -1,7 +1,7 @@
 'use client'
 import { useEffect } from 'react'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
-import { Plus, X } from 'lucide-react'
+import { Plus, RotateCcw, X } from 'lucide-react'
 import type { AdminProperty, DynamicField } from '@/app/admin/types'
 
 const SPEC_KEY_PRESETS = [
@@ -84,16 +84,14 @@ export default function PropertyForm({
 
     try {
         if(editingId) {
-            // handle edit
-            return
+          await updateProperty(editingId, payload)
+        } else {
+          await createProperty(payload)
         }
-        
-        await createProperty(payload)
-        refetchProperties()
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to save property. Please try again.')
+        alert(err instanceof Error ? err.message : 'Failed to save property. Please try again.')
     } finally {
-
+      refetchProperties()
     }
   }
 
@@ -106,11 +104,17 @@ export default function PropertyForm({
             {editingId ? 'Edit Listing Details' : 'Add New Listing'}
           </h2>
         </div>
-        {editingId && (
-          <button type="button" onClick={onCancel} className="text-xs font-bold text-slate-400 hover:text-slate-700 uppercase">
-            Cancel Edit
+
+        <div className='flex items-center'>
+          <button type="button" onClick={() => reset(DEFAULT_FORM_VALUES)} className="flex items-center text-xs font-bold text-slate-400 hover:text-slate-700 uppercase">
+            <RotateCcw size={14} className='mr-1' /> Reset
           </button>
-        )}
+          {editingId && (
+            <button type="button" onClick={onCancel} className="text-xs ml-3 font-bold text-slate-400 hover:text-slate-700 uppercase">
+              Cancel Edit
+            </button>
+          )}
+        </div>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

@@ -92,11 +92,6 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button className="cursor-pointer flex items-center gap-1.5 text-xs font-bold uppercase bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl border border-slate-700 transition-all text-slate-200"
-              onClick={() => refetchProperties()}
-            >
-              <RotateCcw size={14} /> Reload
-            </button>
             <a href="/" target="_blank" className="flex items-center gap-1.5 text-xs font-bold uppercase bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded-xl border border-slate-700 transition-all text-slate-200">
               <ExternalLink size={14} /> Public Site
             </a>
@@ -144,11 +139,13 @@ export default function AdminDashboard() {
               properties={properties}
               isPropertiesLoading={isPropertiesLoading}
               refetchProperties={refetchProperties}
+              deleteProperties={deleteProperties}
               toggleNegotiable={toggleNegotiable}
               toggleArchive={toggleArchive}
 
-              resetPage={handleResetPage}
+              editingId={editingId}
               setEditingId={setEditingId}
+              openAssets={() => setOpenAssetsUpload(true)}
               isSidebarOpen={isSidebarOpen}
               toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
             />

@@ -34,16 +34,28 @@ export function useProperties() {
     }
   }, [])
 
+
   const updateProperty = useCallback(async (id: string, data: Partial<AdminProperty>) => {
-   
+    setError(null)
+    try {
+      await propertiesApi.updateProperty(id, data)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update property')
+    }
   }, [])
+  
 
   const uploadAssets = useCallback(async (id: string, data: Partial<AdminProperty>) => {
    
   }, [])
 
-  const deleteProperties = useCallback(async (id: string) => {
-   
+  const deleteProperties = useCallback(async (ids: string[]) => {
+    setError(null)
+    try {
+      await propertiesApi.deleteProperties(ids)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to delete properties")
+    }
   }, [])
 
   const toggleArchive = useCallback(async (id: string, value: boolean) => {

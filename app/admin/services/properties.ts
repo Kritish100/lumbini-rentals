@@ -42,11 +42,36 @@ export async function createProperty(
   return handleResponse<AdminProperty>(res)
 }
 
-export async function updateProperty() {}
+export async function updateProperty(
+  id: string,
+  data: Partial<AdminProperty>
+): Promise<AdminProperty> {
+
+   const res = await fetch(`${BASE_URL}/api/properties/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': X_API_KEY },
+    body: JSON.stringify(data),
+  })
+
+  return handleResponse<AdminProperty>(res)
+}
 
 export async function uploadAssets() {}
 
-export async function deleteProperties() {}
+export async function deleteProperties(ids: string[]) {
+  const res = await fetch(`${BASE_URL}/api/properties`, { 
+        method: "DELETE",
+        headers: {
+            "content-type": "application/json",
+            "x-api-key": X_API_KEY
+        },
+        body: JSON.stringify({
+            ids
+        })
+  })
+
+  return handleResponse<AdminProperty>(res)
+}
 
 // 
 export async function toggleArchive(id:string, value: boolean) {

@@ -3,17 +3,12 @@
 import { useState, useEffect } from "react";
 import {
   X,
-  Heart,
   MessageCircle,
   Phone,
   MapPin,
   CheckCircle2,
   Tag,
-  Layers,
   Gift,
-  Send,
-  Store,
-  Building2,
   House,
 } from "lucide-react";
 import Image from "next/image";
@@ -68,8 +63,6 @@ export default function PropertyDetailSheet({
   useEffect(() => {
     if (property) {
       setCurrentImageIndex(0);
-      setIsLiked(false);
-      setLikeCount(Math.floor(Math.random() * 100) + 20);
     }
   }, [property]);
 

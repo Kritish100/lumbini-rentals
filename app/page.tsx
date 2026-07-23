@@ -15,7 +15,6 @@ import { usePublicProperties } from "./hooks/usePublicProperties";
 import { PublicProperty } from "./types";
 
 function PropertyDiscoveryContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const listPropertyRef = useRef<HTMLDivElement>(null);
   const ourSocialsRef = useRef<HTMLDivElement>(null);
@@ -23,8 +22,6 @@ function PropertyDiscoveryContent() {
 
   const { properties, isPropertiesLoading, error, refetchProperties } =
     usePublicProperties();
-
-  console.log("Properties", properties);
 
   const [filteredProperties, setFilteredProperties] = useState<
     PublicProperty[]
@@ -52,8 +49,7 @@ function PropertyDiscoveryContent() {
   // Clear all configurations back to standard default view
   const handleResetFilters = () => {
     setFilterRender((prev) => prev + 1); // trigger the re render of Advanced Filters
-    // setFilteredProperties(properties)
-    setFilteredProperties([]);
+    setFilteredProperties(properties);
   };
 
   const handleListPropertyClick = () => {
@@ -82,13 +78,6 @@ function PropertyDiscoveryContent() {
   // Check if any filters are customized away from the baseline state
   const isFiltered = filteredProperties.length !== properties.length;
 
-  console.log(activePropertyId);
-
-  console.log(
-    "find",
-    properties.find((i) => String(i.id) === String(activePropertyId)),
-  );
-
   return (
     <div className="min-h-screen bg-white text-slate-900">
       {/* Hero Banner */}
@@ -101,9 +90,11 @@ function PropertyDiscoveryContent() {
       {/* Advanced Filters */}
       <AdvancedFilters
         renderKey={filterRender}
-        properties={[]}
+        properties={properties}
         setSelectedLocation={(value: string) => setSelectedLocation(value)}
-        updateFilteredProperties={() => {}}
+        updateFilteredProperties={(values: PublicProperty[]) =>
+          setFilteredProperties(values)
+        }
         onViewModeChange={handleViewModeChange}
       />
 

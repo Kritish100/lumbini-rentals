@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Building2, ExternalLink, RotateCcw, CheckCircle2 } from "lucide-react";
-import type { AdminProperty, DynamicField } from "./types";
+import { Building2, ExternalLink, CheckCircle2 } from "lucide-react";
+import type { AdminProperty } from "./types";
 
 // Import the modular components
 import PropertyForm from "./components/PropertyForm";
@@ -126,6 +126,7 @@ export default function AdminDashboard() {
                 <AssetUploader
                   propertyId={editingId}
                   propertyTitle={"find the title on ur own component"}
+                  uploadAssets={uploadAssets}
                   onClose={() => setOpenAssetsUpload(false)}
                 />
               ) : (

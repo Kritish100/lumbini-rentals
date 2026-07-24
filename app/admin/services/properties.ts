@@ -59,7 +59,19 @@ export async function updateProperty(
   return handleResponse<AdminProperty>(res);
 }
 
-export async function uploadAssets() {}
+export async function uploadAssets(
+  id: string,
+  formData: FormData,
+): Promise<AdminProperty> {
+  const apiKey = await getApiKey();
+  const res = await fetch(`${BASE_URL}/api/properties/assets/${id}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-api-key": apiKey },
+    body: formData,
+  });
+
+  return handleResponse<AdminProperty>(res);
+}
 
 export async function deleteProperties(ids: string[]) {
   const apiKey = await getApiKey();

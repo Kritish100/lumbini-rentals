@@ -55,10 +55,14 @@ export function useProperties() {
     [],
   );
 
-  const uploadAssets = useCallback(
-    async (id: string, data: Partial<AdminProperty>) => {},
-    [],
-  );
+  const uploadAssets = useCallback(async (id: string, formData: FormData) => {
+    setError(null);
+    try {
+      await propertiesApi.uploadAssets(id, formData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to upload assets");
+    }
+  }, []);
 
   const deleteProperties = useCallback(async (ids: string[]) => {
     setError(null);

@@ -112,7 +112,7 @@ function PropertyDiscoveryContent() {
           </div>
 
           {/* Results Count & Action Link */}
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+          <div className="text-xs font-bold text-slate-400 uppercase w-fit tracking-wider flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
             <Layers size={13} className="text-slate-400" />
             <span>{filteredProperties.length} Matches Found</span>
           </div>

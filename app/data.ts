@@ -36,3 +36,7 @@ export const SOCIAL_MEDIA_LINKS = {
 };
 
 export const PHONE_NUMBER = "9747436296";
+
+export const ASSET_BASE_URL =
+  "https://api.lumbinirentals.kritishbhattarai.com.np";
+export const PLACEHOLDER_IMG_URL = "https://placehold.net/400x400.png";

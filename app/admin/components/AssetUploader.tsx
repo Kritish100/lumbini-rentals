@@ -139,10 +139,9 @@ export function useAssetUploader({
       }
 
       // !! This makes the API Call
-      uploadAssets(propertyId, formData);
+      await uploadAssets(propertyId, formData);
 
       setDeletedPaths([]);
-      return;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed");
       throw err;
@@ -170,6 +169,7 @@ interface AssetUploaderProps {
   initialAssets?: string[];
   assetBaseUrl?: string;
   uploadAssets: (id: string, formData: FormData) => void;
+  refetchProperties: () => void;
   onSaved?: (assetPaths: string[]) => void;
 }
 
@@ -180,7 +180,7 @@ export default function AssetUploader({
   initialAssets,
   assetBaseUrl,
   uploadAssets,
-  onSaved,
+  refetchProperties,
 }: AssetUploaderProps) {
   const {
     assets,
@@ -217,8 +217,9 @@ export default function AssetUploader({
 
   const handleSave = async () => {
     try {
-      const finalAssets = await save();
+      await save();
       // onSaved?.(finalAssets);
+      refetchProperties();
       onClose();
     } catch {
       // Handled by hook error state

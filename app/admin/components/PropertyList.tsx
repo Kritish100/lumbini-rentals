@@ -18,7 +18,14 @@ import {
   Eye,
 } from "lucide-react";
 import type { AdminProperty } from "@/app/admin/types";
-import { CATEGORY, LOCATIONS, PROPERTY_TYPES, SORT_OPTIONS } from "@/app/data";
+import {
+  CATEGORY,
+  LOCATIONS,
+  PLACEHOLDER_IMG_URL,
+  PROPERTY_TYPES,
+  SORT_OPTIONS,
+} from "@/app/data";
+import { getFirstImage } from "@/app/utils";
 
 interface PropertyListProps {
   properties: AdminProperty[];
@@ -40,7 +47,7 @@ interface PropertyFilters {
   location: string;
   propertyType: string;
   archived: boolean;
-  sortOrder: "Newest" | "Oldest";
+  sortOrder: string;
 }
 
 const DEFAULT_FILTERS: PropertyFilters = {
@@ -48,7 +55,7 @@ const DEFAULT_FILTERS: PropertyFilters = {
   location: "all",
   propertyType: "all",
   archived: false,
-  sortOrder: "Newest",
+  sortOrder: "newest",
 };
 
 const CATEGORY_OPTIONS = ["all", ...CATEGORY];
@@ -148,9 +155,16 @@ export default function PropertyList({
       else return prop.type === filters.propertyType;
     }); // Property Type
 
-    // newList = filters.sortOrder === "Newest"
-    //               ? newList.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    //               : newList.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) // Sort by created at
+    newList =
+      filters.sortOrder === "newest"
+        ? newList.sort(
+            (a, b) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+          )
+        : newList.sort(
+            (a, b) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          ); // Sort by created at
 
     newList = newList.filter(
       (prop) => Boolean(prop.isArchived) === filters.archived,
@@ -320,7 +334,9 @@ export default function PropertyList({
           {filteredAndSortedProperties.map((item) => {
             const isHighlighted = editingId === item.id;
             const createdLabel = formatDate((item as any).createdAt);
+            const thumbnail = getFirstImage(item.assets || []);
 
+            console.log("FIRST IMAGE", getFirstImage(item.assets || []));
             return (
               <div
                 key={item.id}
@@ -339,7 +355,7 @@ export default function PropertyList({
                   className={`flex ${viewMode === "grid" ? "flex-col gap-3" : "items-center gap-4"} min-w-0 flex-1`}
                 >
                   <img
-                    src={item.assets?.[0] || "https://via.placeholder.com/150"}
+                    src={thumbnail || PLACEHOLDER_IMG_URL}
                     alt={item.title}
                     className={`${viewMode === "grid" ? "w-full h-32" : "w-16 h-16"} rounded-lg object-cover bg-slate-100 flex-shrink-0`}
                   />

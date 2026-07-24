@@ -127,6 +127,7 @@ export default function AdminDashboard() {
                   propertyId={editingId}
                   propertyTitle={"find the title on ur own component"}
                   uploadAssets={uploadAssets}
+                  refetchProperties={refetchProperties}
                   onClose={() => setOpenAssetsUpload(false)}
                 />
               ) : (

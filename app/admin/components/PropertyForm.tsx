@@ -106,8 +106,6 @@ export default function PropertyForm({
       ), // [{key: "furnishing", value: "semi"}] => {"furnishing": "semi"}
     };
 
-    console.log(payload);
-
     try {
       if (editingId) {
         await updateProperty(editingId, payload);

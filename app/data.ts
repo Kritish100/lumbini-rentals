@@ -28,3 +28,11 @@ export const SPECIFICATIONS_PRESETS = [
   "ideal for",
   "bedrooms",
 ];
+
+export const SOCIAL_MEDIA_LINKS = {
+  facebook: "https://www.facebook.com/lumbinirentals",
+  tiktok: "https://www.tiktok.com/@lumbinirentals",
+  instagram: "https://www.instagram.com/lumbinirentals",
+};
+
+export const PHONE_NUMBER = "9747436296";

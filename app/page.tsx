@@ -9,7 +9,6 @@ import PropertyCard from "@/components/PropertyCard";
 import PropertyDetailSheet from "@/components/PropertyDetailSheet";
 import ListYourProperty from "@/components/ListYourProperty";
 import OurSocials from "@/components/OurSocials";
-import ClientTestimonials from "@/components/ClientTestimonials";
 import Footer from "@/components/Footer";
 import { usePublicProperties } from "./hooks/usePublicProperties";
 import { PublicProperty } from "./types";
@@ -25,7 +24,7 @@ function PropertyDiscoveryContent() {
 
   const [filteredProperties, setFilteredProperties] = useState<
     PublicProperty[]
-  >([]);
+  >([]); // This is only to be updated by Advanced Filters
 
   // Filter
   const [selectedLocation, setSelectedLocation] = useState("all");
@@ -33,10 +32,6 @@ function PropertyDiscoveryContent() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const [activePropertyId, setActivePropertyId] = useState<string | null>(null);
-
-  useEffect(() => {
-    setFilteredProperties(properties);
-  }, [properties]);
 
   useEffect(() => {
     setActivePropertyId(searchParams.get("view") || null);
@@ -49,7 +44,6 @@ function PropertyDiscoveryContent() {
   // Clear all configurations back to standard default view
   const handleResetFilters = () => {
     setFilterRender((prev) => prev + 1); // trigger the re render of Advanced Filters
-    setFilteredProperties(properties);
   };
 
   const handleListPropertyClick = () => {
@@ -74,9 +68,6 @@ function PropertyDiscoveryContent() {
     setActivePropertyId(null);
     window.history.pushState(null, "", window.location.pathname);
   };
-
-  // Check if any filters are customized away from the baseline state
-  const isFiltered = filteredProperties.length !== properties.length;
 
   return (
     <div className="min-h-screen bg-white text-slate-900">
@@ -121,20 +112,9 @@ function PropertyDiscoveryContent() {
           </div>
 
           {/* Results Count & Action Link */}
-          <div className="flex items-center gap-3 self-start md:self-auto">
-            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-              <Layers size={13} className="text-slate-400" />
-              <span>{filteredProperties.length} Matches Found</span>
-            </div>
-            {isFiltered && (
-              <button
-                onClick={handleResetFilters}
-                className="cursor-pointer flex items-center gap-1.5 text-xs text-slate-500 hover:text-orange-600 font-bold tracking-wide uppercase transition-all duration-200 hover:bg-orange-50 px-2.5 py-1.5 rounded-lg border border-transparent hover:border-orange-100"
-              >
-                <RefreshCw size={12} className="animate-hover" />
-                Clear Filters
-              </button>
-            )}
+          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+            <Layers size={13} className="text-slate-400" />
+            <span>{filteredProperties.length} Matches Found</span>
           </div>
         </div>
 
@@ -172,7 +152,7 @@ function PropertyDiscoveryContent() {
               onClick={handleResetFilters}
               className="mt-3 cursor-pointer inline-flex items-center gap-2 bg-slate-900 text-white font-semibold px-4 py-2 rounded-xl text-sm shadow-md hover:bg-orange-500 transition-all duration-200"
             >
-              Reset Search Filter
+              Reset Filters
             </button>
           </div>
         )}
@@ -195,7 +175,7 @@ function PropertyDiscoveryContent() {
       <OurSocials forwardedRef={ourSocialsRef} />
 
       {/* Client Testimonials Section */}
-      <ClientTestimonials forwardedRef={clientTestimonialsRef} />
+      {/* <ClientTestimonials forwardedRef={clientTestimonialsRef} /> */}
 
       {/* Footer */}
       <Footer />

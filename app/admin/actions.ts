@@ -1,6 +1,10 @@
 "use server";
 import { cookies } from "next/headers";
 
+export async function getApiKey(): Promise<string> {
+  return process.env.X_API_KEY || "";
+}
+
 export async function verifySecretKey(secretKey: string): Promise<boolean> {
   const correctKey = process.env.ADMIN_SECRET_KEY;
   if (correctKey !== secretKey) {

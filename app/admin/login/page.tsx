@@ -23,6 +23,8 @@ export default function AdminLoginPage() {
       } else setError("Invalid secret key. Please try again.");
     } catch (err) {
       setError("Connection Error. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   }
 

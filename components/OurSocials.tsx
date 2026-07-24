@@ -2,6 +2,7 @@
 
 import React from "react";
 import { FacebookIcon, InstagramIcon, TikTokIcon } from "./ui/icons";
+import { SOCIAL_MEDIA_LINKS } from "@/app/data";
 
 interface OurSocialsProps {
   forwardedRef?: React.RefObject<HTMLDivElement | null>;
@@ -12,22 +13,21 @@ export default function OurSocials({ forwardedRef }: OurSocialsProps) {
     {
       name: "Facebook",
       icon: FacebookIcon,
-      url: "https://facebook.com/primerentals",
+      url: SOCIAL_MEDIA_LINKS.facebook,
       bgStyle: "bg-[#1877F2] text-white p-5",
       hoverShadow: "hover:shadow-[0_10px_30px_-10px_rgba(24,119,242,0.6)]",
     },
     {
       name: "TikTok",
       icon: TikTokIcon,
-      url: "https://tiktok.com/@primerentals",
+      url: SOCIAL_MEDIA_LINKS.tiktok,
       bgStyle: "bg-[#000000] text-white p-5",
       hoverShadow: "hover:shadow-[0_10px_30px_-10px_rgba(37,244,238,0.4)]",
     },
     {
       name: "Instagram",
       icon: InstagramIcon,
-      url: "https://instagram.com/primerentals",
-      // Fixed: Multi-stop gradient directly in Tailwind mapping out Yellow -> Pink -> Purple
+      url: SOCIAL_MEDIA_LINKS.instagram,
       bgStyle:
         "bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white p-[22px]",
       hoverShadow: "hover:shadow-[0_10px_30px_-10px_rgba(238,42,123,0.5)]",

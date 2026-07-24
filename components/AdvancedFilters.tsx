@@ -1,8 +1,13 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Grid3x3, List } from "lucide-react";
-import { LOCATIONS, PROPERTY_TYPES } from "@/app/data";
+import {
+  COMMERCIAL_PROPERTY_TYPES,
+  LOCATIONS,
+  PROPERTY_TYPES,
+} from "@/app/data";
 import { PublicProperty } from "@/app/types";
 
 interface AdvancedFiltersProps {
@@ -20,20 +25,22 @@ interface PropertyFilters {
   sortOrder: string;
 }
 
-const DEFAULT_FILTERS: PropertyFilters = {
-  category: "residential",
-  propertyType: "all",
-  location: "all",
-  sortOrder: "newest",
-};
-
 export default function AdvancedFilters({
   renderKey,
   properties,
   updateFilteredProperties,
-  setSelectedLocation,
+  setSelectedLocation, // location update was needed in the parent
   onViewModeChange,
 }: AdvancedFiltersProps) {
+  const searchParams = useSearchParams();
+
+  const DEFAULT_FILTERS: PropertyFilters = {
+    category: searchParams.get("category") || "residential",
+    propertyType: searchParams.get("propertyType") || "all",
+    location: searchParams.get("location") || "all",
+    sortOrder: searchParams.get("sortOrder") || "newest",
+  };
+
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [filters, setFilters] = useState<PropertyFilters>(DEFAULT_FILTERS);
 
@@ -41,16 +48,73 @@ export default function AdvancedFilters({
     key: K,
     value: PropertyFilters[K],
   ) => {
+    // if there is change in category: residential | commercial
+    // then update the property type too
+    if (key === "category") {
+      if (filters.category !== value)
+        setFilters((prev) => ({ ...prev, propertyType: "all", [key]: value }));
+    }
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
+
+  useEffect(() => {
+    // Reset Filters
+    if (renderKey !== 0)
+      setFilters({
+        category: "residential",
+        location: "all",
+        propertyType: "all",
+        sortOrder: "newest",
+      });
+  }, [renderKey]);
+
+  useEffect(() => {
+    const currentUrl = new URL(window.location.href);
+    Object.entries(filters).map(([key, value]) => {
+      currentUrl.searchParams.set(key, value);
+    });
+    window.history.replaceState(null, "", currentUrl.toString());
+  }, [filters]);
 
   useEffect(() => {
     let newList = [...properties];
 
     newList = newList.filter((prop) => {
-      if (filters.category === "all") return prop;
-      else return prop.category.includes(filters.category);
+      return prop.category.includes(filters.category);
     }); // Category
+
+    newList = newList.filter((prop) => {
+      if (filters.location === "all") return prop;
+      else return prop.location === filters.location;
+    }); // Location
+
+    newList = newList.filter((prop) => {
+      if (filters.propertyType === "all") return prop;
+      else return prop.type === filters.propertyType;
+    }); // Property Type
+
+    // Sort
+    switch (filters.sortOrder) {
+      case "newest":
+        newList = newList.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        );
+        break;
+      case "oldest":
+        newList = newList.sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+        );
+        break;
+      case "price-high":
+        newList = newList.sort((a, b) => Number(b.price) - Number(a.price));
+        break;
+
+      case "price-low":
+        newList = newList.sort((a, b) => Number(a.price) - Number(b.price));
+        break;
+    }
 
     updateFilteredProperties(newList); // Parent Component
     setSelectedLocation(filters.location); // Parent Component
@@ -108,7 +172,10 @@ export default function AdvancedFilters({
               className="px-4 py-2 border border-slate-200 bg-slate-50 rounded-xl text-sm font-semibold text-slate-800 transition-all focus:outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-900/10"
             >
               <option value="all">all types</option>
-              {PROPERTY_TYPES.map((option) => (
+              {(filters.category === "residential"
+                ? PROPERTY_TYPES
+                : COMMERCIAL_PROPERTY_TYPES
+              ).map((option) => (
                 <option key={option} value={option}>
                   {option}
                 </option>

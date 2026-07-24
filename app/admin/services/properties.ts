@@ -1,7 +1,7 @@
+import { getApiKey } from "../actions";
 import type { AdminProperty } from "../types";
 
 const BASE_URL = "https://api.lumbinirentals.kritishbhattarai.com.np";
-const X_API_KEY = "Lumbini...1";
 
 export type ResponseType = {
   data: AdminProperty[];
@@ -21,9 +21,10 @@ async function handleResponse<T>(res: Response): Promise<T> {
 
 // GET /api/properties/admin
 export async function getAdminProperties(): Promise<ResponseType> {
+  const apiKey = await getApiKey();
   const res = await fetch(`${BASE_URL}/api/properties/admin`, {
     headers: {
-      "x-api-key": X_API_KEY,
+      "x-api-key": apiKey,
     },
     cache: "no-store",
   });
@@ -34,9 +35,10 @@ export async function getAdminProperties(): Promise<ResponseType> {
 export async function createProperty(
   data: Partial<AdminProperty>,
 ): Promise<AdminProperty> {
+  const apiKey = await getApiKey();
   const res = await fetch(`${BASE_URL}/api/properties`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "x-api-key": X_API_KEY },
+    headers: { "Content-Type": "application/json", "x-api-key": apiKey },
     body: JSON.stringify(data),
   });
 
@@ -47,9 +49,10 @@ export async function updateProperty(
   id: string,
   data: Partial<AdminProperty>,
 ): Promise<AdminProperty> {
+  const apiKey = await getApiKey();
   const res = await fetch(`${BASE_URL}/api/properties/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json", "x-api-key": X_API_KEY },
+    headers: { "Content-Type": "application/json", "x-api-key": apiKey },
     body: JSON.stringify(data),
   });
 
@@ -59,11 +62,12 @@ export async function updateProperty(
 export async function uploadAssets() {}
 
 export async function deleteProperties(ids: string[]) {
+  const apiKey = await getApiKey();
   const res = await fetch(`${BASE_URL}/api/properties`, {
     method: "DELETE",
     headers: {
       "content-type": "application/json",
-      "x-api-key": X_API_KEY,
+      "x-api-key": apiKey,
     },
     body: JSON.stringify({
       ids,
@@ -75,11 +79,12 @@ export async function deleteProperties(ids: string[]) {
 
 //
 export async function toggleArchive(id: string, value: boolean) {
+  const apiKey = await getApiKey();
   const res = await fetch(`${BASE_URL}/api/properties/archive/${id}`, {
     method: "PUT",
     headers: {
       "content-type": "application/json",
-      "x-api-key": X_API_KEY,
+      "x-api-key": apiKey,
     },
     body: JSON.stringify({
       isArchived: !!value,
@@ -90,11 +95,12 @@ export async function toggleArchive(id: string, value: boolean) {
 
 // PUT /api/properties
 export async function toggleNegotiable(id: string, value: boolean) {
+  const apiKey = await getApiKey();
   const res = await fetch(`${BASE_URL}/api/properties/negotiable/${id}`, {
     method: "PUT",
     headers: {
       "content-type": "application/json",
-      "x-api-key": X_API_KEY,
+      "x-api-key": apiKey,
     },
     body: JSON.stringify({
       isNegotiable: !!value,

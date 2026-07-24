@@ -82,13 +82,13 @@ export default function HeroBanner({
           </button>
 
           {/* Testimonials Action - Styled to blend smoothly on light backgrounds */}
-          <button
+          {/* <button
             onClick={onTestimonialsClick}
             className="cursor-pointer flex items-center gap-2 px-7 py-3.5 bg-slate-100 text-slate-700 font-semibold rounded-lg border border-slate-200 shadow-sm transition-all duration-300 hover:bg-slate-200/80 active:scale-95"
           >
             <Users size={20} />
             Client Testimonials
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

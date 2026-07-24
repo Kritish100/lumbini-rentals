@@ -178,7 +178,7 @@ export default function PropertyCard({
         </div>
 
         {/* Footer Metrics Panel */}
-        <div className="flex gap-3 items-center justify-start text-xs text-slate-500 pt-3 border-t border-slate-100">
+        {/* <div className="flex gap-3 items-center justify-start text-xs text-slate-500 pt-3 border-t border-slate-100">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1 text-slate-400">
               <Eye size={14} />{" "}
@@ -196,7 +196,7 @@ export default function PropertyCard({
               </span>
             </div>
           )}
-        </div>
+        </div> */}
       </div>
     </div>
   );

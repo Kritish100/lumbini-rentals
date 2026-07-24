@@ -1,12 +1,11 @@
 "use client";
 
+import { PHONE_NUMBER } from "@/app/data";
 import { MessageCircle, Phone } from "lucide-react";
 
 interface ListYourPropertyProps {
   forwardedRef?: React.RefObject<HTMLDivElement | null>;
 }
-
-const PHONE_NUMBER = "+977 1234567890";
 
 export default function ListYourProperty({
   forwardedRef,
@@ -15,7 +14,7 @@ export default function ListYourProperty({
     const message = encodeURIComponent(
       "Hi! I want to list my property on Lumbini Rentals.",
     );
-    window.open(`https://wa.me/1234567890?text=${message}`, "_blank");
+    window.open(`https://wa.me/${PHONE_NUMBER}?text=${message}`, "_blank");
   };
 
   const handlePhone = () => {
